@@ -42,23 +42,23 @@ namespace System.Net.Configuration
             get { return (AuthenticationModuleElementCollection)this[this.authenticationModules]; }
         }
 
-        protected override void InitializeDefault()
+        protected internal override void InitializeDefault()
         {
 #if !FEATURE_PAL // Security
             this.AuthenticationModules.Add(
-                new AuthenticationModuleElement(typeof(NegotiateClient).AssemblyQualifiedName));
+                new AuthenticationModuleElement("System.Net.NegotiateClient, " + AssemblyRef.System));
             this.AuthenticationModules.Add(
-                new AuthenticationModuleElement(typeof(KerberosClient).AssemblyQualifiedName));
+                new AuthenticationModuleElement("System.Net.KerberosClient, " + AssemblyRef.System));
             this.AuthenticationModules.Add(
-                new AuthenticationModuleElement(typeof(NtlmClient).AssemblyQualifiedName));
+                new AuthenticationModuleElement("System.Net.NtlmClient, " + AssemblyRef.System));
             this.AuthenticationModules.Add(
-                new AuthenticationModuleElement(typeof(DigestClient).AssemblyQualifiedName));
+                new AuthenticationModuleElement("System.Net.DigestClient, " + AssemblyRef.System));
             this.AuthenticationModules.Add(
-                new AuthenticationModuleElement(typeof(BasicClient).AssemblyQualifiedName));
+                new AuthenticationModuleElement("System.Net.BasicClient, " + AssemblyRef.System));
 #endif // !FEATURE_PAL // Security
         }
 
-        protected override ConfigurationPropertyCollection Properties
+        protected internal override ConfigurationPropertyCollection Properties
         {
             get { return this.properties; }
         }
@@ -70,78 +70,5 @@ namespace System.Net.Configuration
                     ConfigurationPropertyOptions.IsDefaultCollection);
     }
 
-    internal sealed class AuthenticationModulesSectionInternal
-    {
-        internal AuthenticationModulesSectionInternal(AuthenticationModulesSection section)
-        {
-            if (section.AuthenticationModules.Count > 0)
-            {
-                this.authenticationModules = new List<Type>(section.AuthenticationModules.Count);
-                foreach(AuthenticationModuleElement authenticationModuleElement in section.AuthenticationModules)
-                {
-                    Type type = null;
-
-                    try
-                    {
-                        type = Type.GetType(authenticationModuleElement.Type, true, true);
-
-                        // verify that its of the proper type of object
-                        if (!typeof(IAuthenticationModule).IsAssignableFrom(type))
-                        {
-                            throw new InvalidCastException(SR.GetString(SR.net_invalid_cast, type.FullName, "IAuthenticationModule"));
-                        }
-                    }
-                    catch (Exception exception)
-                    {
-                        if (NclUtilities.IsFatal(exception)) throw;
-
-                        throw new ConfigurationErrorsException(SR.GetString(SR.net_config_authenticationmodules), exception);
-                    }
-
-                    this.authenticationModules.Add(type);
-                }
-            }
-        }
-
-        internal List<Type> AuthenticationModules
-        {
-            get
-            {
-                List<Type> retval = this.authenticationModules;
-                if (retval == null)
-                {
-                    retval = new List<Type>(0);
-                }
-                return retval;
-            }
-        }
-
-        internal static object ClassSyncObject
-        {
-            get
-            {
-                if (classSyncObject == null)
-                {
-                    object o = new object();
-                    Interlocked.CompareExchange(ref classSyncObject, o, null);
-                }
-                return classSyncObject;
-            }
-        }
-
-        static internal AuthenticationModulesSectionInternal GetSection()
-        {
-            lock (AuthenticationModulesSectionInternal.ClassSyncObject)
-            {
-                AuthenticationModulesSection section = PrivilegedConfigurationManager.GetSection(ConfigurationStrings.AuthenticationModulesSectionPath) as AuthenticationModulesSection;
-                if (section == null)
-                    return null;
-
-                return new AuthenticationModulesSectionInternal(section);
-            }
-        }
-
-        List<Type> authenticationModules = null;
-        static object classSyncObject = null;
-    }
+    // webForCore: AuthenticationModulesSectionInternal left out (.NET Framework's System.Net only; see lift_configuration.py).
 }
