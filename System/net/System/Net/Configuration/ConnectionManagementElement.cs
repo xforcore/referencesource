@@ -25,7 +25,7 @@ namespace System.Net.Configuration
             this.MaxConnection = maxConnection;
         }
 
-        protected override ConfigurationPropertyCollection Properties
+        protected internal override ConfigurationPropertyCollection Properties
         {
             get 
             {
