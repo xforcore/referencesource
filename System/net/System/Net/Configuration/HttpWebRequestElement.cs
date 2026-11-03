@@ -47,7 +47,7 @@ namespace System.Net.Configuration
                 }
         }
 
-        protected override ConfigurationPropertyCollection Properties 
+        protected internal override ConfigurationPropertyCollection Properties 
         {
             get 
             {
