@@ -669,15 +669,7 @@ namespace System.Configuration {
             //       System.Deployment.dll here. The following code is an alternative to calling
             //       ApplicationDeployment.CurrentDeployment.IsFirstRun.
          
-            // First check if the app is ClickOnce deployed
-            ActivationContext actCtx = AppDomain.CurrentDomain.ActivationContext;
-            
-            if (IsClickOnceDeployed(AppDomain.CurrentDomain)) {
-                // Now check if this is the first run since deployment or last upgrade
-                return System.Deployment.Internal.InternalActivationContextHelper.IsFirstRun(actCtx);
-            }
-
-            return false;
+            return false; // webForCore: no ClickOnce on .NET
         }
 
         /// <devdoc>
@@ -692,17 +684,7 @@ namespace System.Configuration {
             //       ApplicationDeployment.IsNetworkDeployed.
             // Security Note: This is also why we need the security assert above.
 
-            ActivationContext actCtx = appDomain.ActivationContext;
-
-            // Ensures the app is running with a context from the store.
-            if (actCtx != null && actCtx.Form == ActivationContext.ContextForm.StoreBounded) {
-                string fullAppId = actCtx.Identity.FullName;
-                if (!String.IsNullOrEmpty(fullAppId)) {
-                    return true;
-                }
-            }
-
-            return false;
+            return false; // webForCore: no ClickOnce on .NET
         }
 
         /// <devdoc>
