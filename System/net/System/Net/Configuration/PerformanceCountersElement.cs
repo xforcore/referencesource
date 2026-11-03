@@ -25,7 +25,7 @@ namespace System.Net.Configuration
             set { this[this.enabled] = value; }
         }
 
-        protected override ConfigurationPropertyCollection Properties
+        protected internal override ConfigurationPropertyCollection Properties
         {
             get 
             {
