@@ -19,7 +19,7 @@ namespace System.Net.Configuration
             this.properties.Add(this.pickupDirectoryLocation);
         }
 
-        protected override ConfigurationPropertyCollection Properties 
+        protected internal override ConfigurationPropertyCollection Properties 
         {
             get 
             {
@@ -46,19 +46,6 @@ namespace System.Net.Configuration
                     ConfigurationPropertyOptions.None);
     }
 
-    internal sealed class SmtpSpecifiedPickupDirectoryElementInternal
-    {
-        internal SmtpSpecifiedPickupDirectoryElementInternal(SmtpSpecifiedPickupDirectoryElement element)
-        {
-            this.pickupDirectoryLocation = element.PickupDirectoryLocation;
-        }
-
-        internal string PickupDirectoryLocation
-        {
-            get { return this.pickupDirectoryLocation; }
-        }
-
-        string pickupDirectoryLocation;
-    }
+    // webForCore: SmtpSpecifiedPickupDirectoryElementInternal left out (.NET Framework's System.Net only; see lift_configuration.py).
 }
 
