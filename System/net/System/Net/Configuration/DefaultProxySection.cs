@@ -58,7 +58,7 @@ namespace System.Net.Configuration
             get { return (ModuleElement)this[this.module]; }
         }
 
-        protected override ConfigurationPropertyCollection Properties
+        protected internal override ConfigurationPropertyCollection Properties
         {
             get { return this.properties; }
         }
@@ -119,7 +119,7 @@ namespace System.Net.Configuration
         // This allows us to prevent parent settings (machine.config) from propegating to higher config (app.config), unless
         // the higher config doesn't contain the section at all.  That is, overriding defaultProxy is all-or-nothing.
         // Template from Microsoft.
-        protected override void Reset(ConfigurationElement parentElement)
+        protected internal override void Reset(ConfigurationElement parentElement)
         {
             // Ignore the parentElement parameter by changing it to the default settings
             DefaultProxySection defaultElement = new DefaultProxySection();
@@ -135,186 +135,5 @@ namespace System.Net.Configuration
         }
     }
 
-    internal sealed class DefaultProxySectionInternal
-    {
-        [SecurityPermission(SecurityAction.Assert, Flags=SecurityPermissionFlag.ControlPrincipal)]
-        internal DefaultProxySectionInternal(DefaultProxySection section)
-        {
-            // If enabled is false, skip everything.
-            if (!section.Enabled)
-            {
-                return;
-            }
-
-            // If nothing else is set, use the system default.
-            if (section.Proxy.AutoDetect == ProxyElement.AutoDetectValues.Unspecified &&
-                section.Proxy.ScriptLocation == null &&
-                String.IsNullOrEmpty(section.Module.Type) &&
-                section.Proxy.UseSystemDefault != ProxyElement.UseSystemDefaultValues.True &&
-                section.Proxy.ProxyAddress == null &&
-                section.Proxy.BypassOnLocal == ProxyElement.BypassOnLocalValues.Unspecified &&
-                section.BypassList.Count == 0)
-            {
-                // Old-style indication to turn off the proxy.
-                if (section.Proxy.UseSystemDefault == ProxyElement.UseSystemDefaultValues.False)
-                {
-                    this.webProxy = new EmptyWebProxy();
-
-                    // Intentionally ignoring UseDefaultCredentials in this case.
-                    return;
-                }
-
-                // Suspend impersonation.
-                try {
-                    new SecurityPermission(SecurityPermissionFlag.ControlPrincipal | SecurityPermissionFlag.UnmanagedCode).Assert();
-#if !FEATURE_PAL
-                    using(WindowsIdentity.Impersonate(IntPtr.Zero))
-#endif // !FEATURE_PAL
-                    {
-                        CodeAccessPermission.RevertAssert();
-                        this.webProxy = new WebRequest.WebProxyWrapper(new WebProxy(true));
-                    }
-                } catch {
-                    throw;
-                }
-            }
-            else
-            {
-                // First, check out if we are using a different module type
-                if (!String.IsNullOrEmpty(section.Module.Type))
-                {
-                    Type theType = Type.GetType(section.Module.Type, true, true);
-                    
-                    if ((theType.Attributes & TypeAttributes.VisibilityMask) != TypeAttributes.Public)
-                        throw new ConfigurationErrorsException(SR.GetString(SR.net_config_proxy_module_not_public));
-                    
-                    // verify that its of the proper type of IWebProxy
-                    if (!typeof(IWebProxy).IsAssignableFrom(theType))
-                    {
-                        throw new InvalidCastException(SR.GetString(SR.net_invalid_cast,
-                                                                    theType.FullName,
-                                                                    "IWebProxy"));
-                    }
-                    this.webProxy = (IWebProxy)Activator.CreateInstance(
-                                    theType,
-                                    BindingFlags.CreateInstance
-                                    | BindingFlags.Instance
-                                    | BindingFlags.NonPublic
-                                    | BindingFlags.Public,
-                                    null,          // Binder
-                                    new object[0], // no arguments
-                                    CultureInfo.InvariantCulture
-                                    );
-                }
-                else if (section.Proxy.UseSystemDefault == ProxyElement.UseSystemDefaultValues.True &&
-                         section.Proxy.AutoDetect == ProxyElement.AutoDetectValues.Unspecified &&
-                         section.Proxy.ScriptLocation == null)
-                {
-                    // Suspend impersonation.  This setting is deprecated but required for Everett compat.
-                    try {
-                        new SecurityPermission(SecurityPermissionFlag.ControlPrincipal | SecurityPermissionFlag.UnmanagedCode).Assert();
-#if !FEATURE_PAL
-                        using(WindowsIdentity.Impersonate(IntPtr.Zero))
-#endif // !FEATURE_PAL
-                        {
-                            CodeAccessPermission.RevertAssert();
-                            this.webProxy = new WebProxy(false);
-                        }
-                    } catch {
-                        throw;
-                    }
-                }
-                else
-                {
-                    this.webProxy = new WebProxy();
-                }
-
-                WebProxy tempProxy = this.webProxy as WebProxy;
-
-                if (tempProxy != null)
-                {
-                    if (section.Proxy.AutoDetect != ProxyElement.AutoDetectValues.Unspecified)
-                    {
-                        tempProxy.AutoDetect = section.Proxy.AutoDetect == ProxyElement.AutoDetectValues.True;
-                    }
-                    if (section.Proxy.ScriptLocation != null)
-                    {
-                        tempProxy.ScriptLocation = section.Proxy.ScriptLocation;
-                    }
-                    if (section.Proxy.BypassOnLocal != ProxyElement.BypassOnLocalValues.Unspecified)
-                    {
-                        tempProxy.BypassProxyOnLocal = section.Proxy.BypassOnLocal == ProxyElement.BypassOnLocalValues.True;
-                    }
-                    if (section.Proxy.ProxyAddress != null)
-                    {
-                        tempProxy.Address = section.Proxy.ProxyAddress;
-                    }
-                    int bypassListSize = section.BypassList.Count;
-                    if (bypassListSize > 0)
-                    {
-                        string[] bypassList = new string[section.BypassList.Count];
-                        for (int index = 0; index < bypassListSize; ++index)
-                        {
-                            bypassList[index] = section.BypassList[index].Address;
-                        }
-                        tempProxy.BypassList = bypassList;
-                    }
-
-                    // Wrap it if type not explicitly specified in Module.
-                    if (section.Module.Type == null)
-                    {
-                        this.webProxy = new WebRequest.WebProxyWrapper(tempProxy);
-                    }
-                }
-            }
-
-            // Now apply UseDefaultCredentials if there's a proxy.
-            if (this.webProxy != null && section.UseDefaultCredentials)
-            {
-                this.webProxy.Credentials = SystemNetworkCredential.defaultCredential;
-            }
-        }
-
-        internal static object ClassSyncObject
-        {
-            get
-            {
-                if (classSyncObject == null)
-                {
-                    object o = new object();
-                    Interlocked.CompareExchange(ref classSyncObject, o, null);
-                }
-                return classSyncObject;
-            }
-        }
-
-        static internal DefaultProxySectionInternal GetSection()
-        {
-            lock (DefaultProxySectionInternal.ClassSyncObject)
-            {
-                DefaultProxySection section = PrivilegedConfigurationManager.GetSection(ConfigurationStrings.DefaultProxySectionPath) as DefaultProxySection;
-                if (section == null)
-                    return null;
-
-                try
-                {
-                    return new DefaultProxySectionInternal(section);
-                }
-                catch (Exception exception)
-                {
-                    if (NclUtilities.IsFatal(exception)) throw;
-
-                    throw new ConfigurationErrorsException(SR.GetString(SR.net_config_proxy), exception);
-                }
-            }
-        }
-
-        internal IWebProxy WebProxy
-        {
-            get { return this.webProxy; }
-        }
-
-        private IWebProxy webProxy;
-        private static object classSyncObject;
-    }
+    // webForCore: DefaultProxySectionInternal left out (.NET Framework's System.Net only; see lift_configuration.py).
 }
