@@ -75,7 +75,7 @@ namespace System.Net.Configuration
             get { return (long)this[minSendBytesPerSecond]; }
         }
 
-        protected override ConfigurationPropertyCollection Properties
+        protected internal override ConfigurationPropertyCollection Properties
         {
             get { return properties; }
         }
