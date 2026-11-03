@@ -64,7 +64,7 @@ namespace System.Configuration
             }
         }
         
-        protected override ConfigurationPropertyCollection Properties 
+        protected internal override ConfigurationPropertyCollection Properties 
         {
             get {
                 return properties;
@@ -158,7 +158,7 @@ namespace System.Configuration
                 // Must Assert unrestricted FileIOPermission to get the app config path.
                 new FileIOPermission(PermissionState.Unrestricted).Assert();
                 try {
-                    appConfigFilePath = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
+                    appConfigFilePath = AppContext.GetData("APP_CONFIG_FILE") as string; // webForCore: no AppDomainSetup.ConfigurationFile
                 }
                 finally {
                     FileIOPermission.RevertAssert();
