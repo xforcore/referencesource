@@ -33,7 +33,7 @@ namespace System.Net.Configuration
             this.Type = type;
         }
 
-        protected override ConfigurationPropertyCollection Properties
+        protected internal override ConfigurationPropertyCollection Properties
         {
             get 
             {
