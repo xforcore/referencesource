@@ -36,19 +36,19 @@ namespace System.Net.Configuration
             }
         }
 
-        protected override void InitializeDefault()
+        protected internal override void InitializeDefault()
         {
             this.WebRequestModules.Add(
-                new WebRequestModuleElement(ConfigurationStrings.Https, typeof(HttpRequestCreator)));
+                new WebRequestModuleElement(ConfigurationStrings.Https, Type.GetType("System.Net.HttpRequestCreator, " + AssemblyRef.System, false) ?? typeof(object)));
             this.WebRequestModules.Add(
-                new WebRequestModuleElement(ConfigurationStrings.Http, typeof(HttpRequestCreator)));
+                new WebRequestModuleElement(ConfigurationStrings.Http, Type.GetType("System.Net.HttpRequestCreator, " + AssemblyRef.System, false) ?? typeof(object)));
             this.WebRequestModules.Add(
-                new WebRequestModuleElement(ConfigurationStrings.File, typeof(FileWebRequestCreator)));
+                new WebRequestModuleElement(ConfigurationStrings.File, Type.GetType("System.Net.FileWebRequestCreator, " + AssemblyRef.System, false) ?? typeof(object)));
             this.WebRequestModules.Add(
-                new WebRequestModuleElement(ConfigurationStrings.Ftp, typeof(FtpWebRequestCreator)));
+                new WebRequestModuleElement(ConfigurationStrings.Ftp, Type.GetType("System.Net.FtpWebRequestCreator, " + AssemblyRef.System, false) ?? typeof(object)));
         }
 
-        protected override ConfigurationPropertyCollection Properties
+        protected internal override ConfigurationPropertyCollection Properties
         {
             get { return this.properties; }
         }
@@ -66,68 +66,5 @@ namespace System.Net.Configuration
                     ConfigurationPropertyOptions.IsDefaultCollection);
     }
 
-    internal sealed class WebRequestModulesSectionInternal
-    {
-        internal WebRequestModulesSectionInternal(WebRequestModulesSection section)
-        {
-            if (section.WebRequestModules.Count > 0)
-            {
-                this.webRequestModules = new ArrayList(section.WebRequestModules.Count);
-                foreach(WebRequestModuleElement webRequestModuleElement in section.WebRequestModules)
-                {
-                    try
-                    {
-                        this.webRequestModules.Add(new WebRequestPrefixElement(webRequestModuleElement.Prefix, webRequestModuleElement.Type));
-                    }
-                    catch (Exception exception)
-                    {
-                        if (NclUtilities.IsFatal(exception)) throw;
-
-                        throw new ConfigurationErrorsException(SR.GetString(SR.net_config_webrequestmodules), exception);
-                    }
-                }
-            }
-        }
-
-        internal static object ClassSyncObject
-        {
-            get
-            {
-                if (classSyncObject == null)
-                {
-                    object o = new object();
-                    Interlocked.CompareExchange(ref classSyncObject, o, null);
-                }
-                return classSyncObject;
-            }
-        }
-
-        static internal WebRequestModulesSectionInternal GetSection()
-        {
-            lock (WebRequestModulesSectionInternal.ClassSyncObject)
-            {
-                WebRequestModulesSection section = PrivilegedConfigurationManager.GetSection(ConfigurationStrings.WebRequestModulesSectionPath) as WebRequestModulesSection;
-                if (section == null)
-                    return null;
-
-                return new WebRequestModulesSectionInternal(section);
-            }
-        }
-
-        internal ArrayList WebRequestModules
-        {
-            get 
-            {
-                ArrayList retval = this.webRequestModules;
-                if (retval == null)
-                {
-                    retval = new ArrayList(0);
-                }
-                return retval; 
-            }
-        }
-
-        static object classSyncObject = null;
-        ArrayList webRequestModules = null;
-    }
+    // webForCore: WebRequestModulesSectionInternal left out (.NET Framework's System.Net only; see lift_configuration.py).
 }
