@@ -23,7 +23,7 @@ namespace System.Net.Configuration
             this.Address = address;
         }
 
-        protected override ConfigurationPropertyCollection Properties
+        protected internal override ConfigurationPropertyCollection Properties
         {
             get 
             {
