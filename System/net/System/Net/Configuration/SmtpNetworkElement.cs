@@ -50,7 +50,7 @@ namespace System.Net.Configuration
             }
         }
 
-        protected override ConfigurationPropertyCollection Properties 
+        protected internal override ConfigurationPropertyCollection Properties 
         {
             get 
             {
@@ -158,63 +158,6 @@ namespace System.Net.Configuration
 
     }
 
-    internal sealed class SmtpNetworkElementInternal
-    {
-        internal SmtpNetworkElementInternal(SmtpNetworkElement element)
-        {
-            this.host = element.Host;
-            this.port = element.Port;
-            this.targetname = element.TargetName;
-            this.clientDomain = element.ClientDomain;
-            this.enableSsl = element.EnableSsl;
-
-            if (element.DefaultCredentials)
-            {
-                this.credential = (NetworkCredential)CredentialCache.DefaultCredentials;
-            }
-            else if (element.UserName != null && element.UserName.Length > 0)
-            {
-                this.credential = new NetworkCredential(element.UserName, element.Password);
-            }
-
-        }
-
-        internal NetworkCredential Credential
-        {
-            get { return this.credential; }
-        }
-
-        internal string Host
-        {
-            get { return this.host; }
-        }
-
-        internal string ClientDomain
-        {
-            get { return this.clientDomain; }
-        }
-
-        internal int Port
-        {
-            get { return this.port; }
-        }
-
-        internal string TargetName
-        {
-            get { return this.targetname; }
-        }
-
-        internal bool EnableSsl
-        {
-            get { return this.enableSsl; }
-        }
-        
-        string targetname;
-        string host;
-        string clientDomain;
-        int port;
-        NetworkCredential credential = null;
-        bool enableSsl;
-    }
+    // webForCore: SmtpNetworkElementInternal left out (.NET Framework's System.Net only; see lift_configuration.py).
 }
 
