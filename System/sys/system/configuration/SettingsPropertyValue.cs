@@ -105,7 +105,7 @@ namespace System.Configuration {
                     } else {
                         MemoryStream ms = new System.IO.MemoryStream((byte[])SerializedValue);
                         try {
-                            val = (new BinaryFormatter()).Deserialize(ms);
+                            val = (new WebFormsForCore.Serialization.Formatters.Binary.BinaryFormatter()).Deserialize(ms);
                         } finally {
                             ms.Close();
                         }
@@ -191,7 +191,7 @@ namespace System.Configuration {
                     MemoryStream    ms  = null;
                     try {
                         ms = new System.IO.MemoryStream(buf);
-                        return (new BinaryFormatter()).Deserialize(ms);
+                        return (new WebFormsForCore.Serialization.Formatters.Binary.BinaryFormatter()).Deserialize(ms);
                     } finally {
                         if (ms != null)
                             ms.Close();
@@ -223,7 +223,7 @@ namespace System.Configuration {
 
             MemoryStream ms = new System.IO.MemoryStream();
             try {
-                BinaryFormatter bf = new BinaryFormatter();
+                var bf = new WebFormsForCore.Serialization.Formatters.Binary.BinaryFormatter();
                 bf.Serialize(ms, _Value);
                 return ms.ToArray();
             } finally {
@@ -251,7 +251,7 @@ namespace System.Configuration {
                 case SettingsSerializeAs.Binary :
                     MemoryStream ms = new System.IO.MemoryStream();
                     try {
-                        BinaryFormatter bf = new BinaryFormatter();
+                        var bf = new WebFormsForCore.Serialization.Formatters.Binary.BinaryFormatter();
                         bf.Serialize(ms, propValue);
                         byte[] buffer = ms.ToArray();
                         return Convert.ToBase64String(buffer);
