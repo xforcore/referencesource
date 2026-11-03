@@ -100,7 +100,7 @@ namespace System.Net.Configuration
             set { this[this.useNagleAlgorithm] = value; }
         }
 
-        protected override ConfigurationPropertyCollection Properties
+        protected internal override ConfigurationPropertyCollection Properties
         {
             get 
             {
