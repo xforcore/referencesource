@@ -30,7 +30,7 @@ namespace System.Web.Util {
         }
 
         private static IMembershipAdapter CreateSystemWebMembershipAdapter() {
-            Type type = Type.GetType("System.Web.Security.MembershipAdapter, " + AssemblyRef.SystemWeb, throwOnError:false);
+            Type type = Type.GetType("System.Web.Security.MembershipAdapter, System.Web", throwOnError:false); // webForCore: the fork's System.Web
             if (type != null) {
                 // Running on Extended SKU
 
