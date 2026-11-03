@@ -18,11 +18,9 @@ namespace System.Data {
     using System.Collections;
     using System.Globalization;
 
-    [
-    System.Security.Permissions.HostProtectionAttribute(SharedState=true, Synchronization=true),
-    Obsolete("TypedDataSetGenerator class will be removed in a future release. Please use System.Data.Design.TypedDataSetGenerator in System.Design.dll.")
-    ]
-    public class TypedDataSetGenerator {
+    // webForCore: internal, for XsdBuildProvider (TypedDataSets/TypedDataSetGenerator.cs); System.Data internals replaced
+    // by public members (TypedDataSets/CodeGenSupport.cs).
+    internal class TypedDataSetGenerator {
         private bool            useExtendedNaming;
         private ICodeGenerator  codeGen;
         private ArrayList       errorList;
@@ -87,7 +85,7 @@ namespace System.Data {
                 }            
             
                 if (errorList.Count > 0) {
-                    throw new TypedDataSetGeneratorException(errorList);
+                    throw CodeGenSupport.GeneratorException(errorList);
                 }
             }
             codeNamespace.Types.Add(dataSetClass);
@@ -115,7 +113,7 @@ namespace System.Data {
                 }
                 lookupIdentifiers[inVarName] = newName;
                 if (! this.codeGen.IsValidIdentifier(newName)){
-                    errorList.Add(Res.GetString(Res.CodeGen_InvalidIdentifier, newName));
+                    errorList.Add(CodeGenSupport.GetString(CodeGenSupport.CodeGen_InvalidIdentifier, newName));
                 }
             }
             return newName;
@@ -170,9 +168,9 @@ namespace System.Data {
                 className = (string)table.ExtendedProperties["typedName"];
                 if(isEmpty(className)) {
                     // check for conflicts with same name different namespace
-                    if ((table.DataSet.Tables.InternalIndexOf(table.TableName) == -3) && !conflictingTables.Contains(table.TableName)) {
+                    if ((CodeGenSupport.HasNamesake(table)) && !conflictingTables.Contains(table.TableName)) {
                         conflictingTables.Add(table.TableName);
-                        errorList.Add(Res.GetString(Res.CodeGen_DuplicateTableName, table.TableName));
+                        errorList.Add(CodeGenSupport.GetString(CodeGenSupport.CodeGen_DuplicateTableName, table.TableName));
                     }
                         
                     className = FixIdName(table.TableName);
@@ -257,7 +255,7 @@ namespace System.Data {
                 typedName = RowClassName(relation.ParentTable);
                 if(                                                // Complex case: 
                     relation.ChildTable == relation.ParentTable || //   Self join
-                    relation.ChildColumnsReference.Length != 1              //   Multycolumn key
+                    relation.ChildColumns.Length != 1              //   Multycolumn key
                 ) {
                     typedName += "Parent";
                 }
@@ -444,7 +442,7 @@ namespace System.Data {
                 parameterColumnList.CopyTo(index, 0);
                 for (int i = 0; i < index.Length; i++) {
                     Type DataType = index[i].DataType;
-                    DataRelation relation = index[i].FindParentRelation();
+                    DataRelation relation = CodeGenSupport.FindParentRelation(index[i]);
                     if (ChildRelationFollowable(relation)) {
                         string ParentTypedRowName = RowClassName(relation.ParentTable);
                         string argumentName = FixIdName("parent" + ParentTypedRowName + "By" + relation.RelationName);
@@ -469,11 +467,11 @@ namespace System.Data {
                         if (index[i].AutoIncrement) {
                             newArray.Initializers.Add(Primitive(null));
                         }else {
-                            DataRelation relation = index[i].FindParentRelation();
+                            DataRelation relation = CodeGenSupport.FindParentRelation(index[i]);
                             if (ChildRelationFollowable(relation)) {
                                 string ParentTypedRowName = RowClassName(relation.ParentTable);
                                 string argumentName = FixIdName("parent" + ParentTypedRowName + "By" + relation.RelationName);
-                                newArray.Initializers.Add(Indexer(Argument(argumentName), Primitive(relation.ParentColumnsReference[0].Ordinal)));
+                                newArray.Initializers.Add(Indexer(Argument(argumentName), Primitive(relation.ParentColumns[0].Ordinal)));
                             }
                             else {
                                 newArray.Initializers.Add(Argument(RowColumnPropertyName(index[i])));
@@ -499,7 +497,7 @@ namespace System.Data {
                     continue;
                 }
 
-                DataColumn[] index = ((UniqueConstraint)table.Constraints[j]).ColumnsReference;
+                DataColumn[] index = ((UniqueConstraint)table.Constraints[j]).Columns;
                 string FindByName = "FindBy";
                 bool AllHidden = true;
                 for (int i = 0; i < index.Length; i++) {                    
@@ -597,7 +595,7 @@ namespace System.Data {
                     }
                     //\\ this.Constraints.Add = new UniqueConstraint(<constraintName>, new DataColumn[] {this.column<ColumnName> [, ...]});
                     UniqueConstraint uc = (UniqueConstraint)(table.Constraints[i]);
-                    DataColumn[] columns = uc.ColumnsReference;
+                    DataColumn[] columns = uc.Columns;
                     CodeExpression[] createArgs = new CodeExpression[columns.Length]; {
                         for (int j = 0; j < columns.Length; j++) {
                             createArgs[j] = Field(This(), TableColumnFieldName(columns[j]));
@@ -648,11 +646,11 @@ namespace System.Data {
                         tableInitClass.Statements.Add(Assign(Property(codeField, "Unique"), Primitive(true)));
                     }
 
-                    if (!Common.ADP.IsEmpty(column.Prefix)) {
+                    if (!isEmpty(column.Prefix)) {
                         //\\ this.column<ColumnName>.Prefix = "<column.Prefix>";
                         tableInitClass.Statements.Add(Assign(Property(codeField, "Prefix"), Str(column.Prefix)));
                     }
-                    if (column._columnUri != null) {
+                    if (CodeGenSupport.HasOwnNamespace(column)) {
                         //\\ this.column<ColumnName>.Namespace = "<column.Namespace>";
                         tableInitClass.Statements.Add(Assign(Property(codeField, "Namespace"), Str(column.Namespace)));
                     }
@@ -670,19 +668,19 @@ namespace System.Data {
                     }
                 }
 
-                if (table.ShouldSerializeCaseSensitive()) {
+                if (CodeGenSupport.HasOwnCaseSensitive(table)) {
                     //\\ this.CaseSensitive = <CaseSensitive>;
                     tableInitClass.Statements.Add(Assign(Property(This(), "CaseSensitive"), Primitive(table.CaseSensitive)));
                 }
-                if (table.ShouldSerializeLocale()) {
+                if (CodeGenSupport.HasOwnLocale(table)) {
                     //\\ this.Locale = new System.Globalization.CultureInfo("<Locale>");
                     tableInitClass.Statements.Add(Assign(Property(This(), "Locale"), New(typeof(System.Globalization.CultureInfo),new CodeExpression[] {Str(table.Locale.ToString())})));
                 }
-                if (!Common.ADP.IsEmpty(table.Prefix)) {
+                if (!isEmpty(table.Prefix)) {
                     //\\ this.Prefix = "<Prefix>";
                     tableInitClass.Statements.Add(Assign(Property(This(), "Prefix"), Str(table.Prefix)));
                 }
-                if (table.tableNamespace != null) {
+                if (CodeGenSupport.HasOwnNamespace(table)) {
                     //\\ this.Namespace = <Namespace>;
                     tableInitClass.Statements.Add(Assign(Property(This(), "Namespace"), Str(table.Namespace)));
                 }
@@ -691,9 +689,9 @@ namespace System.Data {
                     //\\ this.MinimumCapacity = <MinimumCapacity>;
                     tableInitClass.Statements.Add(Assign(Property(This(), "MinimumCapacity"), Primitive(table.MinimumCapacity)));
                 }
-                if (table.displayExpression != null) {
+                if (table.DisplayExpression.Length != 0) {
                     //\\ this.DisplayExpression = "<DisplayExpression>";
-                    tableInitClass.Statements.Add(Assign(Property(This(), "DisplayExpression"), Str(table.DisplayExpressionInternal)));
+                    tableInitClass.Statements.Add(Assign(Property(This(), "DisplayExpression"), Str(table.DisplayExpression)));
                 }
             }
             dataTableClass.Members.Add(tableInitVars);
@@ -819,7 +817,7 @@ namespace System.Data {
                                 CodeExpression nullValueExpr;
                                 if(nullValue == "_null") {
                                     if(col.DataType.IsSubclassOf(typeof(System.ValueType))) {
-                                        errorList.Add(Res.GetString(Res.CodeGen_TypeCantBeNull, col.ColumnName, col.DataType.Name));
+                                        errorList.Add(CodeGenSupport.GetString(CodeGenSupport.CodeGen_TypeCantBeNull, col.ColumnName, col.DataType.Name));
                                         continue; // with next column.
                                     }
                                     nullValueExpr = Primitive(null);
@@ -832,7 +830,7 @@ namespace System.Data {
                                         /* check that object can be constructed with parameterless constructor */ {
                                             System.Reflection.ConstructorInfo ctor = col.DataType.GetConstructor(new Type[] {typeof(string)});
                                             if(ctor == null) {
-                                                errorList.Add(Res.GetString(Res.CodeGen_NoCtor0, col.ColumnName, col.DataType.Name));
+                                                errorList.Add(CodeGenSupport.GetString(CodeGenSupport.CodeGen_NoCtor0, col.ColumnName, col.DataType.Name));
                                                 continue; // with next column.
                                             }
                                             ctor.Invoke(new Object[] {}); // can throw here.
@@ -844,7 +842,7 @@ namespace System.Data {
                                         table.NewRow(); // by this we force DataTable create DataStorage for each column in a table.
                                         storageInitialized = true;
                                     }
-                                    object nullValueObj = col.ConvertXmlToObject(nullValue); // the exception will be throw if nullValue can't be conwerted to col.DataType
+                                    object nullValueObj = CodeGenSupport.ConvertXmlToObject(col, nullValue); // the exception will be throw if nullValue can't be conwerted to col.DataType
                                     if(
                                         col.DataType == typeof(char)   || col.DataType == typeof(string) ||
                                         col.DataType == typeof(decimal)|| col.DataType == typeof(bool)   ||
@@ -866,7 +864,7 @@ namespace System.Data {
                                             /* check that type can be constructed from this string */ {
                                                 System.Reflection.ConstructorInfo ctor = col.DataType.GetConstructor(new Type[] {typeof(string)});
                                                 if(ctor == null) {
-                                                    errorList.Add(Res.GetString(Res.CodeGen_NoCtor1, col.ColumnName, col.DataType.Name));
+                                                    errorList.Add(CodeGenSupport.GetString(CodeGenSupport.CodeGen_NoCtor1, col.ColumnName, col.DataType.Name));
                                                     continue; // with next column.
                                                 }
                                                 ctor.Invoke(new Object[] {nullValue}); // can throw here.
@@ -1283,7 +1281,7 @@ namespace System.Data {
                             }
 
                             CodeArrayCreateExpression parentColumns = new CodeArrayCreateExpression(typeof(DataColumn), 0); {
-                                foreach(DataColumn c in fkc.RelatedColumnsReference) {
+                                foreach(DataColumn c in fkc.RelatedColumns) {
                                     parentColumns.Initializers.Add(Property(Field(This(), TableFieldName(c.Table)), TableColumnPropertyName(c)));
                                 }
                             }
@@ -1322,14 +1320,14 @@ namespace System.Data {
                     //\\ ));
                     CodeArrayCreateExpression parentColCreate =  new CodeArrayCreateExpression(typeof(DataColumn), 0); {
                         string parentTableField = TableFieldName(relation.ParentTable);
-                        foreach(DataColumn column in relation.ParentColumnsReference) {
+                        foreach(DataColumn column in relation.ParentColumns) {
                             parentColCreate.Initializers.Add(Property(Field(This(), parentTableField), TableColumnPropertyName(column)));
                         }
                     }
 
                     CodeArrayCreateExpression childColCreate =  new CodeArrayCreateExpression(typeof(DataColumn), 0); {
                         string childTableField = TableFieldName(relation.ChildTable);
-                        foreach(DataColumn column in relation.ChildColumnsReference) {
+                        foreach(DataColumn column in relation.ChildColumns) {
                             childColCreate.Initializers.Add(Property(Field(This(), childTableField), TableColumnPropertyName(column)));
                         }
                     }
@@ -1490,7 +1488,7 @@ namespace System.Data {
 
         //\\ throw new <exception>(<arg>, <inner>)
         private static CodeStatement      Throw(Type exception, string arg, string inner) { 
-            return new CodeThrowExceptionStatement(New(exception, new CodeExpression[] {Str(Res.GetString(arg)), Variable(inner)}));
+            return new CodeThrowExceptionStatement(New(exception, new CodeExpression[] {Str(CodeGenSupport.GetString(arg)), Variable(inner)}));
         }
         // -------------------- If: ----------------------------
         private static CodeStatement If(CodeExpression cond, CodeStatement[] trueStms, CodeStatement[] falseStms) {
