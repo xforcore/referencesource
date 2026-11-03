@@ -30,7 +30,7 @@ namespace System.Configuration
         public ClientSettingsSection () {
         }
          
-        protected override ConfigurationPropertyCollection Properties {
+        protected internal override ConfigurationPropertyCollection Properties {
             get {
                 return _properties;
             }
@@ -124,7 +124,7 @@ namespace System.Configuration
         }
          
          
-        protected override ConfigurationPropertyCollection Properties {
+        protected internal override ConfigurationPropertyCollection Properties {
             get {
                 return _properties;
             }
@@ -168,7 +168,7 @@ namespace System.Configuration
         private XmlNode _valueXml;
         private bool isModified = false;
          
-        protected override ConfigurationPropertyCollection Properties {
+        protected internal override ConfigurationPropertyCollection Properties {
             get {
                 if (_properties == null) {
                     _properties = new ConfigurationPropertyCollection();
@@ -188,7 +188,7 @@ namespace System.Configuration
             }
         }
 
-        protected override void DeserializeElement(XmlReader reader, bool serializeCollectionKey)
+        protected internal override void DeserializeElement(XmlReader reader, bool serializeCollectionKey)
         {
             ValueXml = doc.ReadNode(reader);
         }
@@ -202,15 +202,15 @@ namespace System.Configuration
             return ValueXml.GetHashCode();
         }
 
-        protected override bool IsModified() {
+        protected internal override bool IsModified() {
             return isModified;
         }
 
-        protected override void ResetModified() {
+        protected internal override void ResetModified() {
             isModified = false;
         }
 
-        protected override bool SerializeToXmlElement(XmlWriter writer, string elementName) {
+        protected internal override bool SerializeToXmlElement(XmlWriter writer, string elementName) {
             if (ValueXml != null) {
                 if (writer != null) {
                     ValueXml.WriteTo(writer);
@@ -221,12 +221,12 @@ namespace System.Configuration
             return false;
         }
 
-        protected override void Reset(ConfigurationElement parentElement) {
+        protected internal override void Reset(ConfigurationElement parentElement) {
             base.Reset(parentElement);
             ValueXml = ((SettingValueElement) parentElement).ValueXml;
         }
 
-        protected override void Unmerge(ConfigurationElement sourceElement, ConfigurationElement parentElement, 
+        protected internal override void Unmerge(ConfigurationElement sourceElement, ConfigurationElement parentElement, 
                                                 ConfigurationSaveMode saveMode) {
             base.Unmerge(sourceElement, parentElement, saveMode);
             ValueXml = ((SettingValueElement) sourceElement).ValueXml;
