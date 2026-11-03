@@ -37,7 +37,7 @@ namespace System.Configuration
             get { return (GenericUriParserOptions)this[genericUriParserOptions]; }
         }
 
-        protected override ConfigurationPropertyCollection Properties
+        protected internal override ConfigurationPropertyCollection Properties
         {
             get { return properties; }
         }
