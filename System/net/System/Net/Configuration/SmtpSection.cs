@@ -74,7 +74,7 @@ namespace System.Net.Configuration
             }
         }
 
-        protected override ConfigurationPropertyCollection Properties 
+        protected internal override ConfigurationPropertyCollection Properties 
         {
             get 
             {
@@ -163,75 +163,7 @@ namespace System.Net.Configuration
         }
     }
 
-    internal sealed class SmtpSectionInternal
-    {
-        internal SmtpSectionInternal(SmtpSection section)
-        {
-            this.deliveryMethod = section.DeliveryMethod;
-            this.deliveryFormat = section.DeliveryFormat;
-            this.from = section.From;
-
-            this.network = new SmtpNetworkElementInternal(section.Network);
-            this.specifiedPickupDirectory = new SmtpSpecifiedPickupDirectoryElementInternal(section.SpecifiedPickupDirectory);
-        }
-
-        internal SmtpDeliveryMethod DeliveryMethod
-        {
-            get { return this.deliveryMethod; }
-        }
-
-        internal SmtpDeliveryFormat DeliveryFormat
-        {
-            get { return this.deliveryFormat; }
-        }
-
-        internal SmtpNetworkElementInternal Network
-        {
-            get { return this.network; }
-        }
-
-        internal string From
-        {
-            get { return this.from; }
-        }
-
-        internal SmtpSpecifiedPickupDirectoryElementInternal SpecifiedPickupDirectory
-        {
-            get { return this.specifiedPickupDirectory; }
-        }
-
-        SmtpDeliveryMethod                          deliveryMethod;
-        SmtpDeliveryFormat                          deliveryFormat;
-        string                                      from = null;
-        SmtpNetworkElementInternal                  network = null;
-        SmtpSpecifiedPickupDirectoryElementInternal specifiedPickupDirectory = null;
-
-        internal static object ClassSyncObject
-        {
-            get
-            {
-                if (classSyncObject == null)
-                {
-                    Interlocked.CompareExchange(ref classSyncObject, new object(), null);
-                }
-                return classSyncObject;
-            }
-        }
-
-        internal static SmtpSectionInternal GetSection()
-        {
-            lock (ClassSyncObject)
-            {
-                SmtpSection section = PrivilegedConfigurationManager.GetSection(ConfigurationStrings.SmtpSectionPath) as SmtpSection;
-                if (section == null)
-                    return null;
-
-                return new SmtpSectionInternal(section);
-            }
-        }
-
-        private static object classSyncObject;
-    }
+    // webForCore: SmtpSectionInternal left out (.NET Framework's System.Net only; see lift_configuration.py).
 }
 
 
