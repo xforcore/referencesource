@@ -27,7 +27,8 @@ namespace System.Web.Hosting {
         // in GetCustomLoader).
         private CustomLoaderHelper() { }
 
-        internal static IObjectHandle GetCustomLoader(ICustomLoaderHelperFunctions helperFunctions, string appConfigMetabasePath, string configFilePath, string customLoaderPhysicalPath, out AppDomain newlyCreatedAppDomain) {
+        internal static ObjectHandle GetCustomLoader( // webForCore: no IObjectHandle on .NET
+            ICustomLoaderHelperFunctions helperFunctions, string appConfigMetabasePath, string configFilePath, string customLoaderPhysicalPath, out AppDomain newlyCreatedAppDomain) {
             // Step 1: Does the host allow custom loaders?
 
             bool? customLoaderIsEnabled = helperFunctions.CustomLoaderIsEnabled;
@@ -47,42 +48,10 @@ namespace System.Web.Hosting {
                 }
             }
 
-            // Step 2: Create the new AD
-
-            string binFolderPhysicalPath = helperFunctions.MapPath("/bin/");
-
-            AppDomainSetup setup = new AppDomainSetup() {
-                PrivateBinPathProbe = "*",  // disable loading from app base
-                PrivateBinPath = binFolderPhysicalPath,
-                ApplicationBase = helperFunctions.AppPhysicalPath,
-                TargetFrameworkName = _customLoaderTargetFrameworkName
-            };
-
-            if (configFilePath != null) {
-                setup.ConfigurationFile = configFilePath;
-            }
-
-            AppDomain newAppDomainForCustomLoader = AppDomain.CreateDomain("aspnet-custom-loader-" + Guid.NewGuid(), null, setup);
-            try {
-                // Step 3: Instantiate helper in new AD so that we can get a reference to the loader
-                CustomLoaderHelper helper = (CustomLoaderHelper)newAppDomainForCustomLoader.CreateInstanceAndUnwrap(_customLoaderAssemblyName, _customLoaderTypeName,
-                    ignoreCase: false,
-                    bindingAttr: BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.CreateInstance | BindingFlags.Instance,
-                    binder: null,
-                    args: null,
-                    culture: null,
-                    activationAttributes: null);
-                ObjectHandle ohCustomLoader = helper.GetCustomLoaderImpl(customLoaderPhysicalPath);
-
-                // If we got this far, success!
-                newlyCreatedAppDomain = newAppDomainForCustomLoader;
-                return ohCustomLoader;
-            }
-            catch {
-                // If something went wrong, kill the new AD.
-                AppDomain.Unload(newAppDomainForCustomLoader);
-                throw;
-            }
+            // webForCore: .NET cannot create AppDomains (AppDomain.CreateDomain, AppDomainSetup), so the loader is
+            // instantiated in the current one, which the hosting layer already isolates (PseudoAppDomain).
+            newlyCreatedAppDomain = AppDomain.CurrentDomain;
+            return new CustomLoaderHelper().GetCustomLoaderImpl(customLoaderPhysicalPath);
         }
 
         private ObjectHandle GetCustomLoaderImpl(string customLoaderPhysicalPath) {
