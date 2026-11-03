@@ -45,7 +45,7 @@ namespace System.Net.Configuration
             this.properties.Add(this.usesystemdefault);
         }
 
-        protected override ConfigurationPropertyCollection Properties 
+        protected internal override ConfigurationPropertyCollection Properties 
         {
             get 
             {
@@ -102,7 +102,7 @@ namespace System.Net.Configuration
             new ConfigurationProperty(ConfigurationStrings.ScriptLocation, 
                                       typeof(Uri), 
                                       null, 
-                                      new UriTypeConverter(UriKind.Absolute), 
+                                      new UriTypeConverter(), 
                                       null, 
                                       ConfigurationPropertyOptions.None);
 
@@ -120,7 +120,7 @@ namespace System.Net.Configuration
             new ConfigurationProperty(ConfigurationStrings.ProxyAddress, 
                                       typeof(Uri), 
                                       null, 
-                                      new UriTypeConverter(UriKind.Absolute), 
+                                      new UriTypeConverter(), 
                                       null, 
                                       ConfigurationPropertyOptions.None);
 
