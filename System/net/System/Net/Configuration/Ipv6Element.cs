@@ -18,7 +18,7 @@ namespace System.Net.Configuration
             this.properties.Add(this.enabled);
         }
 
-        protected override ConfigurationPropertyCollection Properties 
+        protected internal override ConfigurationPropertyCollection Properties 
         {
             get 
             {
