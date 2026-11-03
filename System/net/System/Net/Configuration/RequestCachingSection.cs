@@ -71,7 +71,7 @@ namespace System.Net.Configuration
         //
         // If DisableAllCaching is set once to true it will not change.
         //
-        protected override void DeserializeElement(System.Xml.XmlReader reader, bool serializeCollectionKey)
+        protected internal override void DeserializeElement(System.Xml.XmlReader reader, bool serializeCollectionKey)
         {
 
             bool tempDisableAllCaching = this.DisableAllCaching;
@@ -100,7 +100,7 @@ namespace System.Net.Configuration
             }
         }
 
-        protected override ConfigurationPropertyCollection Properties
+        protected internal override ConfigurationPropertyCollection Properties
         {
             get { return this.properties; }
         }
@@ -151,168 +151,5 @@ namespace System.Net.Configuration
                                       ConfigurationPropertyOptions.None);
     }
 
-    internal sealed class RequestCachingSectionInternal
-    {
-
-        private RequestCachingSectionInternal() { }
-
-        internal RequestCachingSectionInternal(RequestCachingSection section)
-        {
-#if !FEATURE_PAL // IE caching
-//ROTORTODO: Review // IE caching
-//CORIOLISTODO: Review // IE caching
-            if (!section.DisableAllCaching)
-            {
-                this.defaultCachePolicy = new RequestCachePolicy(section.DefaultPolicyLevel); // default should be RequestCacheLevel.BypassCache
-                this.isPrivateCache = section.IsPrivateCache;
-                this.unspecifiedMaximumAge = section.UnspecifiedMaximumAge; //default should be  TimeSpan.FromDays(1)
-            }
-            else
-            {
-                this.disableAllCaching = true;
-            }
-
-            this.httpRequestCacheValidator = new HttpRequestCacheValidator(false, this.UnspecifiedMaximumAge);
-            this.ftpRequestCacheValidator  = new FtpRequestCacheValidator(false, this.UnspecifiedMaximumAge);
-            this.defaultCache = new Microsoft.Win32.WinInetCache(this.IsPrivateCache, true, true);
-
-            if (section.DisableAllCaching)
-                return;
-
-
-            HttpCachePolicyElement httpPolicy = section.DefaultHttpCachePolicy;
-
-            if (httpPolicy.WasReadFromConfig)
-            {
-                if (httpPolicy.PolicyLevel == HttpRequestCacheLevel.Default)
-                {
-                    HttpCacheAgeControl cacheAgeControl =
-                        (httpPolicy.MinimumFresh != TimeSpan.MinValue ? HttpCacheAgeControl.MaxAgeAndMinFresh : HttpCacheAgeControl.MaxAgeAndMaxStale);
-
-                    this.defaultHttpCachePolicy = new HttpRequestCachePolicy(cacheAgeControl, httpPolicy.MaximumAge, (httpPolicy.MinimumFresh != TimeSpan.MinValue ? httpPolicy.MinimumFresh : httpPolicy.MaximumStale));
-                }
-                else
-                {
-                    this.defaultHttpCachePolicy = new HttpRequestCachePolicy(httpPolicy.PolicyLevel);
-                }
-            }
-#else //!FEATURE_PAL // IE caching
-#if CORIOLIS
-            if (section.DisableAllCaching)
-            {
-                this.httpRequestCacheValidator = new HttpRequestCacheValidator(false, this.UnspecifiedMaximumAge);
-                this.disableAllCaching = true;
-            }
-            else
-            {
-                // Caching needs to be disabled in the configuration since Coriolis
-                // does not support it.
-                // This is a validity check, that it is actually disabled.
-                throw new NotImplementedException("ROTORTODO - RequestCaching - IE caching");
-            }
-#else // CORIOLIS
-            this.httpRequestCacheValidator = new HttpRequestCacheValidator(false, this.UnspecifiedMaximumAge);
-            this.disableAllCaching = true;
-#endif
-#endif //!FEATURE_PAL // IE caching
-
-            FtpCachePolicyElement ftpPolicy = section.DefaultFtpCachePolicy;
-
-            if (ftpPolicy.WasReadFromConfig)
-            {
-                this.defaultFtpCachePolicy = new RequestCachePolicy(ftpPolicy.PolicyLevel);
-            }
-
-        }
-
-        internal static object ClassSyncObject
-        {
-            get
-            {
-                if (classSyncObject == null)
-                {
-                    object o = new object();
-                    Interlocked.CompareExchange(ref classSyncObject, o, null);
-                }
-                return classSyncObject;
-            }
-        }
-
-        internal bool DisableAllCaching
-        {
-            get { return this.disableAllCaching; }
-        }
-
-        internal RequestCache DefaultCache
-        {
-            get { return this.defaultCache; }
-        }
-
-        internal RequestCachePolicy DefaultCachePolicy
-        {
-            get { return this.defaultCachePolicy; }
-        }
-
-        internal bool IsPrivateCache
-        {
-            get { return this.isPrivateCache; }
-        }
-
-        internal TimeSpan UnspecifiedMaximumAge
-        {
-            get { return this.unspecifiedMaximumAge; }
-        }
-
-        internal HttpRequestCachePolicy DefaultHttpCachePolicy
-        {
-            get { return this.defaultHttpCachePolicy; }
-        }
-
-        internal RequestCachePolicy DefaultFtpCachePolicy
-        {
-            get { return this.defaultFtpCachePolicy; }
-        }
-
-        internal HttpRequestCacheValidator DefaultHttpValidator
-        {
-            get { return this.httpRequestCacheValidator; }
-        }
-
-        internal FtpRequestCacheValidator DefaultFtpValidator
-        {
-            get { return this.ftpRequestCacheValidator; }
-        }
-
-        static internal RequestCachingSectionInternal GetSection()
-        {
-            lock (RequestCachingSectionInternal.ClassSyncObject)
-            {
-                RequestCachingSection section = PrivilegedConfigurationManager.GetSection(ConfigurationStrings.RequestCachingSectionPath) as RequestCachingSection;
-                if (section == null)
-                    return null;
-
-                try
-                {
-                    return new RequestCachingSectionInternal(section);
-                }
-                catch (Exception exception)
-                {
-                    if (NclUtilities.IsFatal(exception)) throw;
-
-                    throw new ConfigurationErrorsException(SR.GetString(SR.net_config_requestcaching), exception);
-                }
-            }
-        }
-
-        static object classSyncObject;
-        RequestCache defaultCache;
-        HttpRequestCachePolicy defaultHttpCachePolicy;
-        RequestCachePolicy defaultFtpCachePolicy;
-        RequestCachePolicy defaultCachePolicy;
-        bool disableAllCaching;
-        HttpRequestCacheValidator httpRequestCacheValidator;
-        FtpRequestCacheValidator  ftpRequestCacheValidator;
-        bool isPrivateCache;
-        TimeSpan unspecifiedMaximumAge;
-    }
+    // webForCore: RequestCachingSectionInternal left out (.NET Framework's System.Net only; see lift_configuration.py).
 }
