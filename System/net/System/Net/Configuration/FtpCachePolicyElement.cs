@@ -19,7 +19,7 @@ namespace System.Net.Configuration
             this.properties.Add(this.policyLevel);
         }
 
-        protected override ConfigurationPropertyCollection Properties
+        protected internal override ConfigurationPropertyCollection Properties
         {
             get
             {
@@ -35,13 +35,13 @@ namespace System.Net.Configuration
         }
 
 
-        protected override void DeserializeElement(XmlReader reader, bool serializeCollectionKey)
+        protected internal override void DeserializeElement(XmlReader reader, bool serializeCollectionKey)
         {
             wasReadFromConfig = true;
             base.DeserializeElement(reader, serializeCollectionKey);
         }
 
-        protected override void Reset(ConfigurationElement parentElement)
+        protected internal override void Reset(ConfigurationElement parentElement)
         {
             if (parentElement != null)
             {
