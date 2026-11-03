@@ -22,23 +22,5 @@ namespace System.Net.Configuration
 	}
     }
 
-    internal sealed class MailSettingsSectionGroupInternal
-    {
-        internal MailSettingsSectionGroupInternal()
-        {
-            this.smtp = SmtpSectionInternal.GetSection();
-        }
-
-        internal SmtpSectionInternal Smtp
-        {
-            get { return this.smtp; }
-        }
-
-        static internal MailSettingsSectionGroupInternal GetSection()
-        {
-            return new MailSettingsSectionGroupInternal();
-        }
-
-        SmtpSectionInternal smtp = null;
-    }
+    // webForCore: MailSettingsSectionGroupInternal left out (.NET Framework's System.Net only; see lift_configuration.py).
 }
