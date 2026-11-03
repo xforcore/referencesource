@@ -45,7 +45,7 @@ namespace System.Net.Configuration
             get { return (HttpListenerTimeoutsElement)this[timeouts]; }
         }
 
-        protected override ConfigurationPropertyCollection Properties
+        protected internal override ConfigurationPropertyCollection Properties
         {
             get { return properties; }
         }
