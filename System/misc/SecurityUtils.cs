@@ -1,3 +1,4 @@
+#define SYSTEM_NAMESPACE // webForCore: as System.dll compiled it
 //------------------------------------------------------------------------------
 // <copyright file="SecurityUtils.cs" company="Microsoft">
 //     Copyright (c) Microsoft Corporation.  All rights reserved.
@@ -70,9 +71,7 @@ namespace System.Windows.Forms
 
         [SecuritySafeCritical]
         private static void DemandGrantSet(Assembly assembly) {
-            PermissionSet targetGrantSet = assembly.PermissionSet;
-            targetGrantSet.AddPermission(RestrictedMemberAccessPermission);
-            targetGrantSet.Demand();
+            // webForCore: no Code Access Security (Assembly.PermissionSet) on .NET.
         }
 
         private static bool HasReflectionPermission(Type type) {
