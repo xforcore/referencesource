@@ -8,16 +8,15 @@ namespace System.Web.Compilation {
     using System.Reflection;
     using System.Threading;
 
-    class Precompiler {
+    public partial class Precompiler {
 
-        static ClientBuildManager _client;
         static string _sourcePhysicalDir;
         static string _metabasePath;
         static string _sourceVirtualDir;
         static string _targetPhysicalDir;
         static string _keyFile;
         static string _keyContainer;
-        static PrecompilationFlags _precompilationFlags;
+        static PrecompileFlags _precompilationFlags; // webForCore: WebFormsForCore's PrecompileFlags mirrors PrecompilationFlags
         static bool _showErrorStack;
         static List<string> _excludedVirtualPaths;
 
@@ -46,7 +45,7 @@ namespace System.Web.Compilation {
             }
 
             if (!nologo) {
-                Console.WriteLine(String.Format(CultureInfo.CurrentCulture, CompilerResources.brand_text, ThisAssembly.InformationalVersion));
+                Console.WriteLine(String.Format(CultureInfo.CurrentCulture, CompilerResources.brand_text, Assembly.GetExecutingAssembly().GetName().Version.ToString(3)));
                 Console.WriteLine(CompilerResources.header_text);
                 Console.WriteLine(CompilerResources.copyright);
                 Console.WriteLine();
@@ -66,24 +65,21 @@ namespace System.Web.Compilation {
                 if (_sourceVirtualDir == null)
                     _sourceVirtualDir = _metabasePath;
 
-                ClientBuildManagerParameter parameter = new ClientBuildManagerParameter();
+                // webForCore: WebFormsForCore precompiles in its own load context, per bin folder and target framework
+                PrecompileParameter parameter = new PrecompileParameter();
                 parameter.PrecompilationFlags = _precompilationFlags;
                 parameter.StrongNameKeyFile = _keyFile;
                 parameter.StrongNameKeyContainer = _keyContainer;
+                parameter.BinFolder = _binFolder;
+                parameter.TargetFramework = _targetFramework;
                 parameter.ExcludedVirtualPaths.AddRange(_excludedVirtualPaths);
 
-                _client = new ClientBuildManager(_sourceVirtualDir, _sourcePhysicalDir,
-                    _targetPhysicalDir, parameter);
-
-                _client.PrecompileApplication(new CBMCallback());
-
-                // Return 0 when successful
-                return 0;
+                return Precompile(_sourceVirtualDir, _sourcePhysicalDir, _targetPhysicalDir, parameter);
             }
             catch (FileLoadException e) {
                 // If the assembly fails to be loaded because of strong name verification,
                 // return a better error message.
-                if ((_precompilationFlags & PrecompilationFlags.DelaySign) != 0) {
+                if ((_precompilationFlags & PrecompileFlags.DelaySign) != 0) {
                     PropertyInfo pInfo = typeof(FileLoadException).GetProperty("HResult",
                         BindingFlags.NonPublic | BindingFlags.Instance);
                     MethodInfo methodInfo = pInfo.GetGetMethod(true /*nonPublic*/);
@@ -125,9 +121,11 @@ namespace System.Web.Compilation {
             Console.WriteLine("aspnet_compiler [-?] [-m metabasePath | -v virtualPath [-p physicalDir]]");
             Console.WriteLine("                [[-u] [-f] [-d] [-fixednames] targetDir] [-c]");
             Console.WriteLine("                [-x excludeVirtualPath [...]]");
+            Console.WriteLine("                [-b binFolder]");
             Console.WriteLine("                [[-keyfile file | -keycontainer container]");
             Console.WriteLine("                     [-aptca] [-delaySign]]");
             Console.WriteLine("                [-errorstack]");
+            Console.WriteLine("                [[-t] targetFramework]");
             Console.WriteLine();
 
             DisplaySwitchWithHelp("-?", CompilerResources.questionmark_help);
@@ -137,9 +135,11 @@ namespace System.Web.Compilation {
             DisplaySwitchWithHelp("-u", CompilerResources.u_help);
             DisplaySwitchWithHelp("-f", CompilerResources.f_help);
             DisplaySwitchWithHelp("-d", CompilerResources.d_help);
+            DisplaySwitchWithHelp("-t", CompilerResources.t_help);
             DisplaySwitchWithHelp("targetDir", CompilerResources.targetDir_help);
             DisplaySwitchWithHelp("-c", CompilerResources.c_help);
             DisplaySwitchWithHelp("-x", CompilerResources.x_help);
+            DisplaySwitchWithHelp("-b", CompilerResources.b_help);
             DisplaySwitchWithHelp("-keyfile", CompilerResources.keyfile_help);
             DisplaySwitchWithHelp("-keycontainer", CompilerResources.keycontainer_help);
             DisplaySwitchWithHelp("-aptca", CompilerResources.aptca_help);
@@ -285,19 +285,31 @@ namespace System.Web.Compilation {
                         break;
 
                     case "u":
-                        _precompilationFlags |= PrecompilationFlags.Updatable;
+                        _precompilationFlags |= PrecompileFlags.Updatable;
                         break;
 
                     case "f":
-                        _precompilationFlags |= PrecompilationFlags.OverwriteTarget;
+                        _precompilationFlags |= PrecompileFlags.OverwriteTarget;
                         break;
 
                     case "d":
-                        _precompilationFlags |= PrecompilationFlags.ForceDebug;
+                        _precompilationFlags |= PrecompileFlags.ForceDebug;
                         break;
 
                     case "c":
-                        _precompilationFlags |= PrecompilationFlags.Clean;
+                        _precompilationFlags |= PrecompileFlags.Clean;
+                        break;
+
+                    case "b": // webForCore: WebFormsForCore's bin folder (the app's output folder, e.g. bin_dotnet)
+                        _binFolder = GetNextArgument(args, ref i);
+                        if (_binFolder == null)
+                            return false;
+                        break;
+
+                    case "t": // webForCore: WebFormsForCore's target framework
+                        _targetFramework = GetNextArgument(args, ref i);
+                        if (_targetFramework == null)
+                            return false;
                         break;
 
                     case "nologo":
@@ -330,15 +342,15 @@ namespace System.Web.Compilation {
                         break;
 
                     case "aptca":
-                        _precompilationFlags |= PrecompilationFlags.AllowPartiallyTrustedCallers;
+                        _precompilationFlags |= PrecompileFlags.AllowPartiallyTrustedCallers;
                         break;
 
                     case "delaysign":
-                        _precompilationFlags |= PrecompilationFlags.DelaySign;
+                        _precompilationFlags |= PrecompileFlags.DelaySign;
                         break;
 
                     case "fixednames":
-                        _precompilationFlags |= PrecompilationFlags.FixedNames;
+                        _precompilationFlags |= PrecompileFlags.FixedNames;
                         break;
 
                     default:
@@ -359,17 +371,17 @@ namespace System.Web.Compilation {
                 return false;
             }
 
-            if ((_precompilationFlags & PrecompilationFlags.Updatable) != 0 && _targetPhysicalDir == null) {
+            if ((_precompilationFlags & PrecompileFlags.Updatable) != 0 && _targetPhysicalDir == null) {
                 DumpError("1007", String.Format(CultureInfo.CurrentCulture, CompilerResources.flag_requires_target, "u"));
                 return false;
             }
 
-            if ((_precompilationFlags & PrecompilationFlags.OverwriteTarget) != 0 && _targetPhysicalDir == null) {
+            if ((_precompilationFlags & PrecompileFlags.OverwriteTarget) != 0 && _targetPhysicalDir == null) {
                 DumpError("1008", String.Format(CultureInfo.CurrentCulture, CompilerResources.flag_requires_target, "f"));
                 return false;
             }
 
-            if ((_precompilationFlags & PrecompilationFlags.ForceDebug) != 0 && _targetPhysicalDir == null) {
+            if ((_precompilationFlags & PrecompileFlags.ForceDebug) != 0 && _targetPhysicalDir == null) {
                 DumpError("1009", String.Format(CultureInfo.CurrentCulture, CompilerResources.flag_requires_target, "d"));
                 return false;
             }
@@ -384,12 +396,12 @@ namespace System.Web.Compilation {
                 return false;
             }
 
-            if ((_precompilationFlags & PrecompilationFlags.FixedNames) != 0 && _targetPhysicalDir == null) {
+            if ((_precompilationFlags & PrecompileFlags.FixedNames) != 0 && _targetPhysicalDir == null) {
                 DumpError("1019", String.Format(CultureInfo.CurrentCulture, CompilerResources.flag_requires_target, "fixednames"));
                 return false;
             }
 
-            if ((_precompilationFlags & PrecompilationFlags.DelaySign) != 0) {
+            if ((_precompilationFlags & PrecompileFlags.DelaySign) != 0) {
                 if (_keyFile == null && _keyContainer == null) {
                     DumpError("1013", CompilerResources.invalid_delaysign);
                     return false;
@@ -400,7 +412,7 @@ namespace System.Web.Compilation {
                 }
             }
 
-            if ((_precompilationFlags & PrecompilationFlags.AllowPartiallyTrustedCallers) != 0) {
+            if ((_precompilationFlags & PrecompileFlags.AllowPartiallyTrustedCallers) != 0) {
                 if (_keyFile == null && _keyContainer == null) {
                     DumpError("1014", CompilerResources.invalid_aptca);
                     return false;
@@ -445,14 +457,14 @@ namespace System.Web.Compilation {
             if (e2 != null)
                 exception = e2;
 
-            if (exception is HttpCompileException) {
+            if (IsException(exception, "HttpCompileException")) {
                 // NOTE: These are now handled by the callback
 #if OLD
             HttpCompileException e = (HttpCompileException)exception;
             DumpCompileErrors(e.Results);
 #endif
             }
-            else if (exception is HttpParseException) {
+            else if (IsException(exception, "HttpParseException")) {
                 // NOTE: These are now handled by the callback
 #if OLD
             HttpParseException e = (HttpParseException)exception;
@@ -460,9 +472,11 @@ namespace System.Web.Compilation {
 #endif
             }
             else
-                if (exception is ConfigurationException) {
-                    ConfigurationException e = (ConfigurationException)exception;
-                    DumpError(e.Filename, e.Line, false, "ASPCONFIG", e.BareMessage);
+                if (IsException(exception, "ConfigurationException")) {
+                    // webForCore: the exception is from the precompilation's load context, read by name
+                    Type t = exception.GetType();
+                    DumpError((string)t.GetProperty("Filename").GetValue(exception), (int)t.GetProperty("Line").GetValue(exception),
+                        false, "ASPCONFIG", (string)t.GetProperty("BareMessage").GetValue(exception));
                 }
                 else {
                     DumpError(null, 0, false, "ASPRUNTIME", exception.Message);
@@ -475,7 +489,7 @@ namespace System.Web.Compilation {
         static Exception GetFormattableException(Exception e) {
 
             // If it's one of the know exception types, use it
-            if (e is HttpCompileException || e is HttpParseException || e is ConfigurationException) {
+            if (IsException(e, "HttpCompileException") || IsException(e, "HttpParseException") || IsException(e, "ConfigurationException")) {
                 return e;
             }
 
@@ -494,6 +508,13 @@ namespace System.Web.Compilation {
         }
 
         static void DumpExceptionStack(Exception e) {
+            // webForCore: WebFormsForCore's MSBuild task takes the exception; Silent suppresses the console
+            if (OnException != null) {
+                OnException(e);
+                return;
+            }
+            if (Silent)
+                return;
             Exception subExcep = e.InnerException;
             if (subExcep != null)
                 DumpExceptionStack(subExcep);
@@ -513,6 +534,14 @@ namespace System.Web.Compilation {
 
         // Format an error message using the standard syntax (VSWhidbey 266446)
         static void DumpError(string filename, int line, bool warning, string errorNumber, string message) {
+            // webForCore: WebFormsForCore records the error and hands it to the MSBuild task, if there is one
+            HasErrors = true;
+            if (OnError != null) {
+                OnError(filename, line, warning, errorNumber, message);
+                return;
+            }
+            if (Silent)
+                return;
 
             if (filename != null) {
                 Console.Write(filename);
