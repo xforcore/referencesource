@@ -119,6 +119,7 @@ namespace System.Data.Linq.SqlClient {
 
         [ResourceExposure(ResourceScope.Machine)] // filename parameter later used by other methods.
         internal static void StartCaptureToFile(string filename) {
+#if NETFRAMEWORK
             if (captureAssembly == null) {
                 string dir = System.IO.Path.GetDirectoryName(filename);
                 if (dir.Length == 0) dir = null;
@@ -128,15 +129,21 @@ namespace System.Data.Linq.SqlClient {
                 captureModule = captureAssembly.DefineDynamicModule(name);
                 captureAssemblyFilename = filename;
             }
+#else
+            // webForCore: .NET can't save a dynamic assembly (AssemblyBuilderAccess.Save), so a DEBUG build doesn't capture
+            // the readers it compiles; CaptureModule stays null (#142).
+#endif
         }
 
         [ResourceExposure(ResourceScope.None)] // Exposure is via StartCaptureToFile method.
         [ResourceConsumption(ResourceScope.Machine, ResourceScope.Machine)] // Assembly.Save method call.
         internal static void StopCapture() {
+#if NETFRAMEWORK
             if (captureAssembly != null) {
                 captureAssembly.Save(captureAssemblyFilename);
                 captureAssembly = null;
             }
+#endif
         }
 
         internal static void SetMaxReaderCacheSize(int size) {
