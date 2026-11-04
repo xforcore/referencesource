@@ -37,6 +37,7 @@ namespace System.Windows.Forms
     /// </devdoc>
     internal static class SecurityUtils {
 
+#if NETFRAMEWORK
         private static volatile ReflectionPermission memberAccessPermission = null;
         private static volatile ReflectionPermission restrictedMemberAccessPermission = null;
 
@@ -74,6 +75,14 @@ namespace System.Windows.Forms
             targetGrantSet.AddPermission(RestrictedMemberAccessPermission);
             targetGrantSet.Demand();
         }
+#else
+        // webForCore: .NET has no Code Access Security; code runs in full trust, as with <trust level="Full"> (#142).
+        private static void DemandReflectionAccess(Type type) {
+        }
+
+        private static void DemandGrantSet(Assembly assembly) {
+        }
+#endif
 
         private static bool HasReflectionPermission(Type type) {
             try {
