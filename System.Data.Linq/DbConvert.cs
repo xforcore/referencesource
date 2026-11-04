@@ -4,7 +4,12 @@ using System.Linq.Expressions;
 using System.IO;
 using System.Reflection;
 using System.Text;
+#if NETFRAMEWORK
 using System.Runtime.Serialization.Formatters.Binary;
+#else
+// webForCore: BinaryFormatter throws on .NET 9 and later; webForCore's port of it, as System.Web uses (#142).
+using WebFormsForCore.Serialization.Formatters.Binary;
+#endif
 using System.Linq;
 using System.Collections.Generic;
 using System.Collections;
