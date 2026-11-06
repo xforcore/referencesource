@@ -84,7 +84,7 @@ namespace System.Diagnostics {
             }
         }
         
-        protected override ConfigurationPropertyCollection Properties {
+        protected internal override ConfigurationPropertyCollection Properties {
             get {
                 return _properties;
             }
@@ -111,7 +111,7 @@ namespace System.Diagnostics {
             }
         }
                 
-        protected override void DeserializeElement(XmlReader reader, bool serializeCollectionKey)
+        protected internal override void DeserializeElement(XmlReader reader, bool serializeCollectionKey)
         {
             base.DeserializeElement(reader, serializeCollectionKey);
 
@@ -151,13 +151,13 @@ namespace System.Diagnostics {
         }
 
         // Account for optional attributes from custom listeners. 
-        protected override bool SerializeElement(XmlWriter writer, bool serializeCollectionKey) {
+        protected internal override bool SerializeElement(XmlWriter writer, bool serializeCollectionKey) {
             bool DataToWrite = base.SerializeElement(writer, serializeCollectionKey);
             DataToWrite = DataToWrite || ((_attributes != null) && (_attributes.Count > 0));
             return DataToWrite;
         }
 
-        protected override void Unmerge(ConfigurationElement sourceElement,
+        protected internal override void Unmerge(ConfigurationElement sourceElement,
                                                 ConfigurationElement parentElement,
                                                 ConfigurationSaveMode saveMode) {
             base.Unmerge(sourceElement, parentElement, saveMode);
