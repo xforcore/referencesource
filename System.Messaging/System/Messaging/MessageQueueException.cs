@@ -38,6 +38,16 @@ namespace System.Messaging
             nativeErrorCode = error;
         }
 
+        // messagingForCore: what the queue store can't do (a remote queue, a database that isn't prepared, ...), after
+        // MSMQ's message for the code, so that an application's log names the limitation.
+        private readonly string limitation;
+
+        internal MessageQueueException(int error, string limitation)
+            : this(error)
+        {
+            this.limitation = limitation;
+        }
+
         /// <include file='doc\MessageQueueException.uex' path='docs/doc[@for="MessageQueueException.MessageQueueException"]/*' />
         /// <internalonly/>
         protected MessageQueueException(SerializationInfo info, StreamingContext context)
@@ -65,6 +75,16 @@ namespace System.Messaging
         public override string Message
         {
             get
+            {
+                // messagingForCore: the limitation, after MSMQ's message.
+                if (this.limitation != null)
+                    return MessageForCode() + " " + this.limitation;
+                return MessageForCode();
+            }
+        }
+
+        private string MessageForCode()
+        {
             {
                 try
                 {
