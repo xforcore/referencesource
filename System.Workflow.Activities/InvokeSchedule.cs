@@ -243,6 +243,7 @@ namespace System.Workflow.Activities
                     }
                     else
                     {
+#if !WORKFLOWFORCORE // workflowForCore: WebServiceInputActivity (ASMX) isn't compiled, so no workflow has one (phase 2, docs/LIFT.md).
                         // Exec can't have activate receive.
                         Walker walker = new Walker();
                         walker.FoundActivity += delegate(Walker w, WalkerEventArgs args)
@@ -258,6 +259,7 @@ namespace System.Workflow.Activities
                         };
 
                         walker.Walk((Activity)rootActivity);
+#endif
 
                         bool inAtomicScope = false;
                         Activity parentScope = invokeWorkflow.Parent;
