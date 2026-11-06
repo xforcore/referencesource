@@ -13,7 +13,7 @@ namespace System.Messaging
     using System.ComponentModel;
     using System.Diagnostics;
     using System;
-    using System.Configuration.Install;
+    // messagingForCore: System.Configuration.Install isn't on .NET; MessageQueueInstaller (installutil only) isn't compiled.
     using System.Messaging.Interop;
     using Microsoft.Win32;
     using System.ComponentModel.Design;
@@ -33,7 +33,8 @@ namespace System.Messaging
     [DefaultEvent("ReceiveCompleted"),
     TypeConverterAttribute(typeof(System.Messaging.Design.MessageQueueConverter)),
     Editor("System.Messaging.Design.QueuePathEditor", "System.Drawing.Design.UITypeEditor, " + AssemblyRef.SystemDrawing),
-    InstallerTypeAttribute(typeof(MessageQueueInstaller)),
+    // messagingForCore: the installer by name, not typeof: MessageQueueInstaller needs System.Configuration.Install.
+    InstallerTypeAttribute("System.Messaging.MessageQueueInstaller, System.Messaging, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
     MessagingDescription(Res.MessageQueueDesc)]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1711:IdentifiersShouldNotHaveIncorrectSuffix")]
@@ -140,18 +141,9 @@ namespace System.Messaging
         private object syncRoot = new object();
         private static object staticSyncRoot = new object();
         
+        // messagingForCore: no usage event to Microsoft's telemetry provider (TelemetryEventSource isn't compiled).
         static MessageQueue()
         {
-            try
-            {
-                using (TelemetryEventSource eventSource = new TelemetryEventSource())
-                {
-                    eventSource.MessageQueue();
-                }
-            }
-            catch
-            {
-            }
         }
 
         /// <include file='doc\MessageQueue.uex' path='docs/doc[@for="MessageQueue.MessageQueue"]/*' />
