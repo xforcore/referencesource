@@ -39,7 +39,7 @@ namespace System.Diagnostics {
             }
         }
 
-        protected override ConfigurationPropertyCollection Properties {
+        protected internal override ConfigurationPropertyCollection Properties {
             get {
                 return _properties;
             }
@@ -73,7 +73,7 @@ namespace System.Diagnostics {
             }
         }
 
-        protected override void InitializeDefault() {
+        protected internal override void InitializeDefault() {
             Trace.Listeners.InitializeDefaultInternal();
         }
     }
