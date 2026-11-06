@@ -12,12 +12,15 @@ namespace System.Diagnostics {
 
         public TraceFilter GetRuntimeObject() {
             TraceFilter newFilter = (TraceFilter) BaseGetRuntimeObject();
-            newFilter.initializeData = InitData;
+            // webForCore: TraceFilter.initializeData is internal to .NET's System.Diagnostics; webForCore keeps it
+            // (xforcore/webForCore#213).
+            TraceInitializeData.Set(newFilter, InitData);
             return newFilter;
         }
 
         internal TraceFilter RefreshRuntimeObject(TraceFilter filter) {
-            if (Type.GetType(TypeName) != filter.GetType() || InitData != filter.initializeData) {
+            // webForCore: as GetRuntimeObject finds the type, and the initializeData webForCore kept (xforcore/webForCore#213).
+            if (TraceConfigurationTypes.GetType(TypeName) != filter.GetType() || InitData != TraceInitializeData.Get(filter)) {
                 // type or initdata changed
                 _runtimeObject = null;
                 return GetRuntimeObject();
