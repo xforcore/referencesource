@@ -9,7 +9,9 @@ namespace System.Messaging
     using System;
     using System.Runtime.Serialization;
     using System.Runtime.Serialization.Formatters;
-    using System.Runtime.Serialization.Formatters.Binary;
+    // messagingForCore: .NET's BinaryFormatter throws (since .NET 9). webForCore's port of it
+    // (webForCore.Serialization.Formatters) reads and writes .NET Framework's format, so bodies stay compatible.
+    using WebFormsForCore.Serialization.Formatters.Binary;
     using System.Diagnostics;
     using System.IO;
     using System.ComponentModel;
