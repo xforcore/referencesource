@@ -21,6 +21,7 @@ namespace System.Diagnostics {
     internal static class DiagnosticsConfiguration {
         private static volatile SystemDiagnosticsSection configSection;
         private static volatile InitState initState = InitState.NotInitialized;
+        private static readonly object initLock = new object(); // webForCore: for Initialize (xforcore/webForCore#213)
 
         // setting for Switch.switchSetting
         internal static SwitchElementsCollection SwitchSettings {
@@ -109,7 +110,8 @@ namespace System.Diagnostics {
             }
         }
 
-#if !FEATURE_PAL // perfcounter
+// webForCore: no shared performance counters on .NET (xforcore/webForCore#213).
+#if !FEATURE_PAL && !WebFormsForCore // perfcounter
         internal static int PerfomanceCountersFileMappingSize {
             get {                                                 
                 for (int retryCount = 0; !CanInitialize() && retryCount <= 5; ++retryCount) {
@@ -181,8 +183,9 @@ namespace System.Diagnostics {
             
 
         internal static bool CanInitialize() {
+            // webForCore: the configuration system is in this assembly (ConfigurationManagerInternalFactory isn't, xforcore/webForCore#213).
             return  (initState != InitState.Initializing) && 
-                    !ConfigurationManagerInternalFactory.Instance.SetConfigurationSystemInProgress;
+                    !ConfigurationManager.SetConfigurationSystemInProgress;
         }
         
         internal static void Initialize() {
@@ -192,13 +195,15 @@ namespace System.Diagnostics {
             // executing these critical sections (and consequently obtaining the 2 locks) in the reverse order. 
             // Using the same lock for DiagnosticsConfiguration as well as TraceInternal avoids this issue. 
             // Sequential locks on TraceInternal.critSec by the same thread is a non issue for this critical section.
-            lock (TraceInternal.critSec) {
+            // webForCore: .NET's TraceInternal.critSec is internal to System.Diagnostics.TraceSource; the configuration is read
+            // under a lock of its own (xforcore/webForCore#213).
+            lock (initLock) {
 
                 // because some of the code used to load config also uses diagnostics
                 // we can't block them while we initialize from config. Therefore we just
                 // return immediately and they just use the default values.
                 if (    initState != InitState.NotInitialized || 
-                        ConfigurationManagerInternalFactory.Instance.SetConfigurationSystemInProgress) {
+                        ConfigurationManager.SetConfigurationSystemInProgress) {
 
                     return;
                 }
