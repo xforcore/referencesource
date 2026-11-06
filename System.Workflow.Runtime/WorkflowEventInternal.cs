@@ -13,7 +13,9 @@ using System.Text;
 using System.Threading;
 using System.Xml;
 using System.Transactions;
+#if !WORKFLOWFORCORE // workflowForCore: no COM+ on .NET (the alias isn't used).
 using SES = System.EnterpriseServices;
+#endif
 using System.Workflow.ComponentModel;
 using System.Workflow.Runtime.Hosting;
 

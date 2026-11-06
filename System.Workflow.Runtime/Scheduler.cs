@@ -165,8 +165,13 @@ namespace System.Workflow.Runtime
                                 {
                                     // Use TimeSpan.Zero so scope will not create timeout independent of the transaction
                                     // Use EnterpriseServicesInteropOption.Full to flow transaction to COM+
+#if WORKFLOWFORCORE // workflowForCore: no COM+ on .NET, so nothing to flow the transaction to (docs/LIFT.md).
+                                    transactionalProperties.TransactionScope =
+                                        new TransactionScope(transactionalProperties.Transaction, TimeSpan.Zero, EnterpriseServicesInteropOption.None);
+#else
                                     transactionalProperties.TransactionScope =
                                         new TransactionScope(transactionalProperties.Transaction, TimeSpan.Zero, EnterpriseServicesInteropOption.Full);
+#endif
 
                                     WorkflowTrace.Runtime.TraceEvent(TraceEventType.Information, 0,
                                         "Workflow Runtime: Scheduler: instanceId: " + this.RootWorkflowExecutor.InstanceIdString +
