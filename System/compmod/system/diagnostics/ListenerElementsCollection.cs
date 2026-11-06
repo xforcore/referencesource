@@ -37,8 +37,9 @@ namespace System.Diagnostics {
             return ((ListenerElement) element).Name;
         }
 
-        public TraceListenerCollection GetRuntimeObject() {
-            TraceListenerCollection listeners = new TraceListenerCollection();
+        // webForCore: a list; TraceListenerCollection's constructor is internal to .NET's System.Diagnostics (xforcore/webForCore#213).
+        public System.Collections.Generic.List<TraceListener> GetRuntimeObject() {
+            System.Collections.Generic.List<TraceListener> listeners = new System.Collections.Generic.List<TraceListener>();
             bool _isDemanded = false;
 
             foreach(ListenerElement element in this) {
@@ -61,7 +62,7 @@ namespace System.Diagnostics {
             return listeners;
         }
 
-        protected override void InitializeDefault() {
+        protected internal override void InitializeDefault() {
             InitializeDefaultInternal();
         }
         
@@ -231,19 +232,18 @@ namespace System.Diagnostics {
                 else {
                     // create a new one
                     TraceListener newListener = (TraceListener) BaseGetRuntimeObject();
-                    newListener.initializeData = InitData;
+                    // webForCore: TraceListener.initializeData and SetAttributes are internal to .NET's System.Diagnostics;
+                    // webForCore keeps the one and copies the attributes to the public Attributes (xforcore/webForCore#213).
+                    TraceInitializeData.Set(newListener, InitData);
                     newListener.Name = Name;
-                    newListener.SetAttributes(Attributes);
+                    TraceConfiguration.ReplaceAttributes(newListener.Attributes, Attributes);
                     newListener.TraceOutputOptions = TraceOutputOptions;
 
                     if ((Filter != null) && (Filter.TypeName != null) && (Filter.TypeName.Length != 0)) {
                         newListener.Filter = Filter.GetRuntimeObject();
-                        XmlWriterTraceListener listerAsXmlWriter = newListener as XmlWriterTraceListener;
-                        if (listerAsXmlWriter != null) {
-                            // This filter was added via configuration, which means we want the listener
-                            // to respect it for TraceTransfer events.
-                            listerAsXmlWriter.shouldRespectFilterOnTraceTransfer = true;
-                        }
+                        // webForCore: XmlWriterTraceListener's shouldRespectFilterOnTraceTransfer, which made a filter
+                        // from configuration apply to TraceTransfer too, is internal to .NET's System.Diagnostics
+                        // (xforcore/webForCore#213).
                     }
 
                     _runtimeObject = newListener;
@@ -287,13 +287,13 @@ namespace System.Diagnostics {
         }
 
         // Account for optional attributes from custom listeners. 
-        protected override bool SerializeElement(XmlWriter writer, bool serializeCollectionKey) {
+        protected internal override bool SerializeElement(XmlWriter writer, bool serializeCollectionKey) {
             bool DataToWrite = base.SerializeElement(writer, serializeCollectionKey);
             DataToWrite = DataToWrite || ((_attributes != null) && (_attributes.Count > 0));
             return DataToWrite;
         }
 
-        protected override void Unmerge(ConfigurationElement sourceElement,
+        protected internal override void Unmerge(ConfigurationElement sourceElement,
                                                 ConfigurationElement parentElement,
                                                 ConfigurationSaveMode saveMode) {
             base.Unmerge(sourceElement, parentElement, saveMode);
@@ -342,12 +342,14 @@ namespace System.Diagnostics {
                 else {
                     // We're the element with the type and initializeData info.  First see if those two are the same as they were.
                     // If not, create a whole new object, otherwise, just update the other properties.
-                    if (Type.GetType(className) != listener.GetType() || InitData != listener.initializeData) {
+                    // webForCore: the type as GetRuntimeObject finds it, and the initializeData webForCore kept
+                    // (xforcore/webForCore#213).
+                    if (TraceConfigurationTypes.GetType(className) != listener.GetType() || InitData != TraceInitializeData.Get(listener)) {
                         // type or initdata changed
                         return GetRuntimeObject();
                     }
                     else {
-                        listener.SetAttributes(Attributes);
+                        TraceConfiguration.ReplaceAttributes(listener.Attributes, Attributes); // webForCore: as above
                         listener.TraceOutputOptions = TraceOutputOptions;
                    
                         if (listener.Filter != null ) {
