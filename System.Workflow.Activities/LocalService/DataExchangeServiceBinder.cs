@@ -8,7 +8,9 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Runtime.Remoting;
 using System.Runtime.Remoting.Messaging;
+#if !WORKFLOWFORCORE // workflowForCore: no remoting proxies on .NET (the namespace isn't used).
 using System.Runtime.Remoting.Proxies;
+#endif
 using System.Workflow.ComponentModel;
 using System.Workflow.Runtime;
 using System.Workflow.Runtime.Hosting;

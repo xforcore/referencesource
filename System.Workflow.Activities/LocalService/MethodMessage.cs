@@ -240,10 +240,14 @@ namespace System.Workflow.Activities
             {
                 if (singletonCallContext == null)
                 {
+#if WORKFLOWFORCORE // workflowForCore: no remoting proxies on .NET; the call context starts empty (src/workflowForCore.System.Workflow.Activities/workflowForCore/Remoting.cs).
+                    singletonCallContext = new LogicalCallContext();
+#else
                     CallContextProxy contextProxy = new CallContextProxy(typeof(IDisposable));
                     IDisposable disposable = (IDisposable)contextProxy.GetTransparentProxy();
                     disposable.Dispose();
                     singletonCallContext = contextProxy.CallContext;
+#endif
                 }
                 return singletonCallContext.Clone() as LogicalCallContext;
             }
@@ -316,6 +320,7 @@ namespace System.Workflow.Activities
         }
         #endregion
 
+#if !WORKFLOWFORCORE // workflowForCore: no remoting proxies on .NET (GetLogicalCallContext).
         private sealed class CallContextProxy : System.Runtime.Remoting.Proxies.RealProxy
         {
             LogicalCallContext callContext;
@@ -341,5 +346,6 @@ namespace System.Workflow.Activities
                 return new ReturnMessage(null, null, 0, methodCallMessage.LogicalCallContext, methodCallMessage);
             }
         }
+#endif
     }
 }
