@@ -3297,7 +3297,11 @@ namespace System.Workflow.Activities.Rules
 
         private List<ExtensionMethodInfo> extensionMethods;
         private List<Assembly> seenAssemblies;
+#if WORKFLOWFORCORE // workflowForCore: System.Core's name, which .NET Framework's build had in a shared AssemblyRef that the Reference Source doesn't include.
+        private const string ExtensionAttributeFullName = "System.Runtime.CompilerServices.ExtensionAttribute, System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089";
+#else
         private const string ExtensionAttributeFullName = "System.Runtime.CompilerServices.ExtensionAttribute, " + AssemblyRef.SystemCore;
+#endif
         private Type extensionAttribute;
 
         private static Type defaultExtensionAttribute = GetDefaultExtensionAttribute();
