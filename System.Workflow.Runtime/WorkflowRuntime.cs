@@ -109,7 +109,9 @@ namespace System.Workflow.Runtime
         //This is Instance Specific Flag to mark the given instance of
         //Instance Service is started or not.
         private bool isInstanceStarted;
+#if !WORKFLOWFORCORE // workflowForCore: Visual Studio's workflow debugger isn't compiled (docs/LIFT.md).
         private DebugController debugController;
+#endif
         private object _servicesLock = new object();        // protects integrity or the services collection
         private object _startStopLock = new object();       // serializes calls to start and stop        
         private Guid _uid = Guid.NewGuid();
@@ -199,12 +201,14 @@ namespace System.Workflow.Runtime
                 }
             }
 
+#if !WORKFLOWFORCORE // workflowForCore: Visual Studio's workflow debugger isn't compiled (docs/LIFT.md).
             // create controller
             if (!disableWorkflowDebugging.Enabled)
             {
                 DebugController.InitializeProcessSecurity();
                 this.debugController = new DebugController(this, _name);
             }
+#endif
 
             lock (_runtimesLock)
             {
@@ -219,10 +223,12 @@ namespace System.Workflow.Runtime
             {
                 if (!_disposed)
                 {
+#if !WORKFLOWFORCORE // workflowForCore: Visual Studio's workflow debugger isn't compiled (docs/LIFT.md).
                     if (this.debugController != null)
                     {
                         this.debugController.Close();
                     }
+#endif
                     _workflowDefinitionDispenser.Dispose();
                     _startedServices = false;
                     _disposed = true;
