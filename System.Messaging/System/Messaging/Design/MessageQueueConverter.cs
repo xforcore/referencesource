@@ -13,9 +13,7 @@ namespace System.Messaging.Design
     using System.Diagnostics;
     using System;
     using System.Drawing;
-    using System.Windows.Forms;
-    using System.Windows.Forms.Design;
-    using System.Windows.Forms.ComponentModel;
+    // messagingForCore: Windows Forms usings removed: nothing here uses them, and Windows Forms is Windows-only on .NET.
     using System.ComponentModel.Design.Serialization;
     using System.Reflection;
     using System.Messaging.Interop;
