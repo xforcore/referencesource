@@ -126,17 +126,17 @@ namespace System.Workflow.ComponentModel
 
     [ActivityCodeGenerator(typeof(ActivityCodeGenerator))]
     [ActivityValidator(typeof(ActivityValidator))]
-    [System.Drawing.ToolboxBitmap(typeof(Activity), "Design.Resources.Activity.png")]
+    // workflowForCore: designer types by name, as .NET Framework records them; designers and toolbox bitmaps aren't compiled (docs/LIFT.md).
     [ToolboxItemFilter("Microsoft.Workflow.VSDesigner", ToolboxItemFilterType.Require)]
     [ToolboxItemFilter("System.Workflow.ComponentModel.Design.ActivitySet", ToolboxItemFilterType.Allow)]
     [DesignerSerializer(typeof(ActivityMarkupSerializer), typeof(WorkflowMarkupSerializer))]
-    [DesignerSerializer(typeof(ActivityCodeDomSerializer), typeof(CodeDomSerializer))]
-    [DesignerSerializer(typeof(ActivityTypeCodeDomSerializer), typeof(TypeCodeDomSerializer))]
+    [DesignerSerializer("System.Workflow.ComponentModel.Serialization.ActivityCodeDomSerializer, System.Workflow.ComponentModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35", "System.ComponentModel.Design.Serialization.CodeDomSerializer, System.Design, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
+    [DesignerSerializer("System.Workflow.ComponentModel.Serialization.ActivityTypeCodeDomSerializer, System.Workflow.ComponentModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35", "System.ComponentModel.Design.Serialization.TypeCodeDomSerializer, System.Design, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
     [DesignerCategory("Component")]
     [ActivityExecutor(typeof(ActivityExecutor<Activity>))]
-    [Designer(typeof(ActivityDesigner), typeof(IDesigner))]
-    [Designer(typeof(ActivityDesigner), typeof(IRootDesigner))]
-    [ToolboxItem(typeof(ActivityToolboxItem))]
+    [Designer("System.Workflow.ComponentModel.Design.ActivityDesigner, System.Workflow.ComponentModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35", typeof(IDesigner))]
+    [Designer("System.Workflow.ComponentModel.Design.ActivityDesigner, System.Workflow.ComponentModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35", typeof(IRootDesigner))]
+    [ToolboxItem("System.Workflow.ComponentModel.Design.ActivityToolboxItem, System.Workflow.ComponentModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")]
     [RuntimeNameProperty("Name")]
     [Obsolete("The System.Workflow.* types are deprecated.  Instead, please use the new types from System.Activities.*")]
     public class Activity : DependencyObject
@@ -537,7 +537,8 @@ namespace System.Workflow.ComponentModel
         [Browsable(true)]
         [SRCategory(SR.Activity)]
         [SRDescription(SR.DescriptionDescr)]
-        [Editor(typeof(MultilineStringEditor), typeof(UITypeEditor))]
+        // workflowForCore: designer types by name, as .NET Framework records them; designers and toolbox bitmaps aren't compiled (docs/LIFT.md).
+        [Editor("System.ComponentModel.Design.MultilineStringEditor, System.Design, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         [DefaultValue("")]
         public string Description
         {

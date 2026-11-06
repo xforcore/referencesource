@@ -22,9 +22,9 @@ namespace System.Workflow.Activities
     #endregion
 
     [SRDescription(SR.ParallelActivityDescription)]
-    [ToolboxItem(typeof(ParallelToolboxItem))]
-    [ToolboxBitmap(typeof(ParallelActivity), "Resources.Parallel.png")]
-    [Designer(typeof(ParallelDesigner), typeof(IDesigner))]
+    // workflowForCore: designer types by name, as .NET Framework records them; designers and toolbox bitmaps aren't compiled (docs/LIFT.md).
+    [ToolboxItem("System.Workflow.Activities.ParallelToolboxItem, System.Workflow.Activities, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")]
+    [Designer("System.Workflow.Activities.ParallelDesigner, System.Workflow.Activities, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35", typeof(IDesigner))]
     [ActivityValidator(typeof(ParallelValidator))]
     [SRCategory(SR.Standard)]
     [WorkflowDebuggerSteppingAttribute(WorkflowDebuggerSteppingOption.Concurrent)]

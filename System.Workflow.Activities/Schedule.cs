@@ -20,9 +20,9 @@ namespace System.Workflow.Activities
     using System.Drawing.Design;
 
     #region Class SequentialWorkflow
-    [Designer(typeof(SequentialWorkflowDesigner), typeof(IRootDesigner))]
-    [Designer(typeof(SequentialWorkflowDesigner), typeof(IDesigner))]
-    [ToolboxBitmap(typeof(SequentialWorkflowActivity), "Resources.SequentialWorkflow.bmp")]
+    // workflowForCore: designer types by name, as .NET Framework records them; designers and toolbox bitmaps aren't compiled (docs/LIFT.md).
+    [Designer("System.Workflow.Activities.SequentialWorkflowDesigner, System.Workflow.Activities, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35", typeof(IRootDesigner))]
+    [Designer("System.Workflow.Activities.SequentialWorkflowDesigner, System.Workflow.Activities, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35", typeof(IDesigner))]
     [SRCategory(SR.Standard)]
     [SRDisplayName(SR.SequentialWorkflow)]
     [ToolboxItem(false)]

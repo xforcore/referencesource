@@ -209,7 +209,8 @@ namespace System.Workflow.Activities.Rules
     #endregion
 
     #region RuleConditionReference Class
-    [TypeConverter(typeof(Design.RuleConditionReferenceTypeConverter))]
+    // workflowForCore: designer types by name, as .NET Framework records them; designers and toolbox bitmaps aren't compiled (docs/LIFT.md).
+    [TypeConverter("System.Workflow.Activities.Rules.Design.RuleConditionReferenceTypeConverter, System.Workflow.Activities, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")]
     [ActivityValidator(typeof(RuleConditionReferenceValidator))]
     [SRDisplayName(SR.RuleConditionDisplayName)]
     [Obsolete("The System.Workflow.* types are deprecated.  Instead, please use the new types from System.Activities.*")]

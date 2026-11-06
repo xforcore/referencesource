@@ -18,9 +18,9 @@ namespace System.Workflow.ComponentModel
     using System.Workflow.ComponentModel.Compiler;
 
     [SRDescription(SR.FaultActivityDescription)]
-    [ToolboxItem(typeof(ActivityToolboxItem))]
-    [Designer(typeof(ThrowDesigner), typeof(IDesigner))]
-    [ToolboxBitmap(typeof(ThrowActivity), "Resources.Throw.png")]
+    // workflowForCore: designer types by name, as .NET Framework records them; designers and toolbox bitmaps aren't compiled (docs/LIFT.md).
+    [ToolboxItem("System.Workflow.ComponentModel.Design.ActivityToolboxItem, System.Workflow.ComponentModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")]
+    [Designer("System.Workflow.ComponentModel.Design.ThrowDesigner, System.Workflow.ComponentModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35", typeof(IDesigner))]
     [SRCategory(SR.Standard)]
     [Obsolete("The System.Workflow.* types are deprecated.  Instead, please use the new types from System.Activities.*")]
     public sealed class ThrowActivity : Activity, ITypeFilterProvider, IDynamicPropertyTypeProvider
@@ -96,7 +96,8 @@ namespace System.Workflow.ComponentModel
             }
         }
 
-        [Editor(typeof(TypeBrowserEditor), typeof(System.Drawing.Design.UITypeEditor))]
+        // workflowForCore: designer types by name, as .NET Framework records them; designers and toolbox bitmaps aren't compiled (docs/LIFT.md).
+        [Editor("System.Workflow.ComponentModel.Design.TypeBrowserEditor, System.Workflow.ComponentModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         [SRCategory(SR.Handlers)]
         [SRDescription(SR.FaultTypeDescription)]
         [MergableProperty(false)]

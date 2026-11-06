@@ -28,8 +28,8 @@ namespace System.Workflow.Activities
 
     // Note that the designer is associated dynamically through the type description provider
     [SRDescription(SR.InvokeWorkflowActivityDescription)]
-    [ToolboxItem(typeof(ActivityToolboxItem))]
-    [ToolboxBitmap(typeof(InvokeWorkflowActivity), "Resources.Service.bmp")]
+    // workflowForCore: designer types by name, as .NET Framework records them; designers and toolbox bitmaps aren't compiled (docs/LIFT.md).
+    [ToolboxItem("System.Workflow.ComponentModel.Design.ActivityToolboxItem, System.Workflow.ComponentModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")]
     [ActivityValidator(typeof(InvokeWorkflowValidator))]
     [DefaultEvent("Invoking")]
     [Obsolete("The System.Workflow.* types are deprecated.  Instead, please use the new types from System.Activities.*")]
@@ -63,7 +63,8 @@ namespace System.Workflow.Activities
 
         [SRCategory(SR.Activity)]
         [SRDescription(SR.TargetWorkflowDescr)]
-        [Editor(typeof(TypeBrowserEditor), typeof(UITypeEditor))]
+        // workflowForCore: designer types by name, as .NET Framework records them; designers and toolbox bitmaps aren't compiled (docs/LIFT.md).
+        [Editor("System.Workflow.ComponentModel.Design.TypeBrowserEditor, System.Workflow.ComponentModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         [DefaultValue(null)]
         public Type TargetWorkflow
         {

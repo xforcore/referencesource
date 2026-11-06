@@ -17,10 +17,10 @@ namespace System.Workflow.ComponentModel
     #endregion
 
     [SRDescription(SR.SynchronizationScopeActivityDescription)]
-    [ToolboxItem(typeof(ActivityToolboxItem))]
-    [ToolboxBitmap(typeof(SynchronizationScopeActivity), "Resources.Sequence.png")]
+    // workflowForCore: designer types by name, as .NET Framework records them; designers and toolbox bitmaps aren't compiled (docs/LIFT.md).
+    [ToolboxItem("System.Workflow.ComponentModel.Design.ActivityToolboxItem, System.Workflow.ComponentModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")]
     [SupportsSynchronization]
-    [Designer(typeof(SequenceDesigner), typeof(IDesigner))]
+    [Designer("System.Workflow.ComponentModel.Design.SequenceDesigner, System.Workflow.ComponentModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35", typeof(IDesigner))]
     [Obsolete("The System.Workflow.* types are deprecated.  Instead, please use the new types from System.Activities.*")]
     public sealed class SynchronizationScopeActivity : CompositeActivity, IActivityEventListener<ActivityExecutionStatusChangedEventArgs>
     {
@@ -37,7 +37,8 @@ namespace System.Workflow.ComponentModel
         [SRDisplayName(SR.SynchronizationHandles)]
         [SRDescription(SR.SynchronizationHandlesDesc)]
         [TypeConverter(typeof(SynchronizationHandlesTypeConverter))]
-        [EditorAttribute(typeof(SynchronizationHandlesEditor), typeof(System.Drawing.Design.UITypeEditor))]
+        // workflowForCore: designer types by name, as .NET Framework records them; designers and toolbox bitmaps aren't compiled (docs/LIFT.md).
+        [EditorAttribute("System.Workflow.ComponentModel.SynchronizationHandlesEditor, System.Workflow.ComponentModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         public ICollection<String> SynchronizationHandles
         {
             get

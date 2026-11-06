@@ -24,9 +24,9 @@ namespace System.Workflow.Activities
 
 
     [SRDescription(SR.ListenActivityDescription)]
-    [ToolboxItem(typeof(ListenToolboxItem))]
-    [Designer(typeof(ListenDesigner), typeof(IDesigner))]
-    [ToolboxBitmap(typeof(ListenActivity), "Resources.Listen.png")]
+    // workflowForCore: designer types by name, as .NET Framework records them; designers and toolbox bitmaps aren't compiled (docs/LIFT.md).
+    [ToolboxItem("System.Workflow.Activities.ListenToolboxItem, System.Workflow.Activities, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")]
+    [Designer("System.Workflow.Activities.ListenDesigner, System.Workflow.Activities, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35", typeof(IDesigner))]
     [ActivityValidator(typeof(ListenValidator))]
     [SRCategory(SR.Standard)]
     [Obsolete("The System.Workflow.* types are deprecated.  Instead, please use the new types from System.Activities.*")]

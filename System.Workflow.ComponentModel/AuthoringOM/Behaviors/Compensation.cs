@@ -10,8 +10,8 @@ namespace System.Workflow.ComponentModel
 
 
     [ToolboxItem(false)]
-    [Designer(typeof(CompensationHandlerActivityDesigner), typeof(IDesigner))]
-    [ToolboxBitmap(typeof(CompensationHandlerActivity), "Resources.Compensation.png")]
+    // workflowForCore: designer types by name, as .NET Framework records them; designers and toolbox bitmaps aren't compiled (docs/LIFT.md).
+    [Designer("System.Workflow.ComponentModel.Design.CompensationHandlerActivityDesigner, System.Workflow.ComponentModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35", typeof(IDesigner))]
     [ActivityValidator(typeof(CompensationValidator))]
     [AlternateFlowActivityAttribute]
     [SRCategory(SR.Standard)]

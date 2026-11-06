@@ -12,7 +12,8 @@ namespace System.Workflow.ComponentModel
     using System.Workflow.ComponentModel.Serialization;
 
     [Browsable(true)]
-    [DesignerSerializer(typeof(DependencyObjectCodeDomSerializer), typeof(CodeDomSerializer))]
+    // workflowForCore: designer types by name, as .NET Framework records them; designers and toolbox bitmaps aren't compiled (docs/LIFT.md).
+    [DesignerSerializer("System.Workflow.ComponentModel.Serialization.DependencyObjectCodeDomSerializer, System.Workflow.ComponentModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35", "System.ComponentModel.Design.Serialization.CodeDomSerializer, System.Design, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
     [Obsolete("The System.Workflow.* types are deprecated.  Instead, please use the new types from System.Activities.*")]
     public sealed class WorkflowParameterBinding : DependencyObject
     {

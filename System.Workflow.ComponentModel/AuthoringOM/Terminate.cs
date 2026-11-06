@@ -16,9 +16,9 @@ namespace System.Workflow.ComponentModel
     using System.Workflow.Runtime;
 
     [SRDescription(SR.TerminateActivityDescription)]
-    [ToolboxItem(typeof(ActivityToolboxItem))]
-    [Designer(typeof(TerminateDesigner), typeof(IDesigner))]
-    [ToolboxBitmap(typeof(TerminateActivity), "Resources.Terminate.png")]
+    // workflowForCore: designer types by name, as .NET Framework records them; designers and toolbox bitmaps aren't compiled (docs/LIFT.md).
+    [ToolboxItem("System.Workflow.ComponentModel.Design.ActivityToolboxItem, System.Workflow.ComponentModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")]
+    [Designer("System.Workflow.ComponentModel.Design.TerminateDesigner, System.Workflow.ComponentModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35", typeof(IDesigner))]
     [SRCategory(SR.Standard)]
     [Obsolete("The System.Workflow.* types are deprecated.  Instead, please use the new types from System.Activities.*")]
     public sealed class TerminateActivity : Activity

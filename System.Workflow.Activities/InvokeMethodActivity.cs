@@ -57,7 +57,8 @@ namespace System.Workflow.Activities
         [SRCategory(SR.Activity)]
         [SRDescription(SR.HelperExternalDataExchangeDesc)]
         [RefreshProperties(RefreshProperties.All)]
-        [Editor(typeof(TypeBrowserEditor), typeof(UITypeEditor))]
+        // workflowForCore: designer types by name, as .NET Framework records them; designers and toolbox bitmaps aren't compiled (docs/LIFT.md).
+        [Editor("System.Workflow.ComponentModel.Design.TypeBrowserEditor, System.Workflow.ComponentModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         [TypeFilterProviderAttribute(typeof(ExternalDataExchangeInterfaceTypeFilterProvider))]
         [DefaultValue(null)]
         public virtual Type InterfaceType

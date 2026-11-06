@@ -19,8 +19,8 @@ namespace System.Workflow.Activities
     #endregion
 
     [ToolboxItem(false)]
-    [Designer(typeof(EventHandlersDesigner), typeof(IDesigner))]
-    [ToolboxBitmap(typeof(EventHandlersActivity), "Resources.events.png")]
+    // workflowForCore: designer types by name, as .NET Framework records them; designers and toolbox bitmaps aren't compiled (docs/LIFT.md).
+    [Designer("System.Workflow.Activities.EventHandlersDesigner, System.Workflow.Activities, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35", typeof(IDesigner))]
     [ActivityValidator(typeof(EventHandlersValidator))]
     [SRCategory(SR.Standard)]
     [AlternateFlowActivityAttribute]

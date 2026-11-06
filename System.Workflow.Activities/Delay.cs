@@ -19,9 +19,9 @@ namespace System.Workflow.Activities
     using System.Workflow.Activities.Common;
 
     [SRDescription(SR.DelayActivityDescription)]
-    [ToolboxItem(typeof(ActivityToolboxItem))]
-    [Designer(typeof(DelayDesigner), typeof(IDesigner))]
-    [ToolboxBitmap(typeof(DelayActivity), "Resources.Delay.png")]
+    // workflowForCore: designer types by name, as .NET Framework records them; designers and toolbox bitmaps aren't compiled (docs/LIFT.md).
+    [ToolboxItem("System.Workflow.ComponentModel.Design.ActivityToolboxItem, System.Workflow.ComponentModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")]
+    [Designer("System.Workflow.Activities.DelayDesigner, System.Workflow.Activities, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35", typeof(IDesigner))]
     [DefaultEvent("InitializeTimeoutDuration")]
     [ActivityValidator(typeof(DelayActivityValidator))]
     [SRCategory(SR.Standard)]
