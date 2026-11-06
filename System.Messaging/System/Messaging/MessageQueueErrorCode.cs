@@ -12,7 +12,11 @@ namespace System.Messaging
     ///    <para>[To be supplied.]</para>
     /// </devdoc>    
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1008:EnumsShouldHaveZeroValue")]
+#if WORKFLOWFORCORE // workflowForCore: internal to System.Workflow.Runtime, which names its values in queue exceptions' messages (docs/LIFT.md).
+    internal enum MessageQueueErrorCode
+#else
     public enum MessageQueueErrorCode
+#endif
     {
 
         /// <include file='doc\MessageQueueErrorCode.uex' path='docs/doc[@for="MessageQueueErrorCode.Base"]/*' />
