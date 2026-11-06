@@ -26,6 +26,9 @@ namespace System.Workflow.ComponentModel
     using System.Collections.Specialized;
     using System.Collections.ObjectModel;
     using System.Runtime.Serialization.Formatters.Binary;
+#if WORKFLOWFORCORE // workflowForCore: webForCore's BinaryFormatter, wire-compatible with .NET Framework's; .NET's throws (src/Shared/BinaryFormatter.cs).
+    using BinaryFormatter = WorkflowForCore.Serialization.BinaryFormatter;
+#endif
     using System.Workflow.ComponentModel.Serialization;
 
     #endregion
@@ -1063,6 +1066,9 @@ namespace System.Workflow.ComponentModel
             if (formatter == null)
                 throw new ArgumentNullException("formatter");
 
+#if WORKFLOWFORCORE // workflowForCore: .NET's BinaryFormatter throws; webForCore's is used in its place, with its settings (src/Shared/BinaryFormatter.cs).
+            formatter = BinaryFormatter.ForWorkflow(formatter);
+#endif
             if (this.DesignMode)
                 throw new InvalidOperationException(SR.GetString(SR.Error_NoRuntimeAvailable));
 
@@ -1107,6 +1113,9 @@ namespace System.Workflow.ComponentModel
 
             if (outerActivity != null && outerActivity.DesignMode)
                 throw new InvalidOperationException(SR.GetString(SR.Error_NoRuntimeAvailable));
+#if WORKFLOWFORCORE // workflowForCore: .NET's BinaryFormatter throws; webForCore's is used in its place, with its settings (src/Shared/BinaryFormatter.cs).
+            formatter = BinaryFormatter.ForWorkflow(formatter);
+#endif
 
             Activity returnActivity = null;
 

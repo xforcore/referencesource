@@ -9,6 +9,9 @@ using System.Xml;
 using System.Reflection;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+#if WORKFLOWFORCORE // workflowForCore: webForCore's BinaryFormatter, wire-compatible with .NET Framework's; .NET's throws (src/Shared/BinaryFormatter.cs).
+using BinaryFormatter = WorkflowForCore.Serialization.BinaryFormatter;
+#endif
 using System.ComponentModel.Design.Serialization;
 
 using System.Workflow.Runtime;

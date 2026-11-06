@@ -4,6 +4,9 @@ using System.Diagnostics;
 using System.Collections;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+#if WORKFLOWFORCORE // workflowForCore: webForCore's BinaryFormatter, wire-compatible with .NET Framework's; .NET's throws (src/Shared/BinaryFormatter.cs).
+using BinaryFormatter = WorkflowForCore.Serialization.BinaryFormatter;
+#endif
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Remoting.Messaging;

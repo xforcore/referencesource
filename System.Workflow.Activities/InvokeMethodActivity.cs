@@ -16,10 +16,14 @@ namespace System.Workflow.Activities
     using System.Collections.Generic;
     using System.Workflow.Runtime;
     using System.Runtime.Serialization.Formatters.Binary;
+#if WORKFLOWFORCORE // workflowForCore: webForCore's BinaryFormatter, wire-compatible with .NET Framework's; .NET's throws (src/Shared/BinaryFormatter.cs).
+    using BinaryFormatter = WorkflowForCore.Serialization.BinaryFormatter;
+#endif
     using System.Workflow.Activities.Common;
 
     [SRDescription(SR.CallExternalMethodActivityDescription)]
-    [Designer(typeof(CallExternalMethodActivityDesigner), typeof(IDesigner))]
+    // workflowForCore: designer types by name, as .NET Framework records them; designers and toolbox bitmaps aren't compiled (docs/LIFT.md).
+    [Designer("System.Workflow.Activities.CallExternalMethodActivityDesigner, System.Workflow.Activities, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35", typeof(IDesigner))]
     [DefaultEvent("MethodInvoking")]
     [ActivityValidator(typeof(CallExternalMethodActivityValidator))]
     [SRCategory(SR.Base)]

@@ -7,6 +7,9 @@ using System.Text;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+#if WORKFLOWFORCORE // workflowForCore: webForCore's BinaryFormatter, wire-compatible with .NET Framework's; .NET's throws (src/Shared/BinaryFormatter.cs).
+using BinaryFormatter = WorkflowForCore.Serialization.BinaryFormatter;
+#endif
 using System.Data.Common;
 using System.Data;
 using System.Data.SqlClient;
