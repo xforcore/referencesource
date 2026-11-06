@@ -16,6 +16,7 @@ namespace System.Messaging.Interop
     using System.Security;
     using System.Security.Permissions;
     using System.Runtime.ConstrainedExecution; //for ReliabilityContract
+    using System.Messaging.Store; // messagingForCore: the queue store
 
     [System.Runtime.InteropServices.ComVisible(false),
     System.Security.SuppressUnmanagedCodeSecurityAttribute()]
@@ -23,75 +24,68 @@ namespace System.Messaging.Interop
     {
         public unsafe delegate void ReceiveCallback(int result, IntPtr handle, int timeout, int action, IntPtr propertiesPointer, NativeOverlapped* overlappedPointer, IntPtr cursorHandle);
 
-        [DllImport(ExternDll.Mqrt, EntryPoint = "MQBeginTransaction", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
-        public static extern int IntMQBeginTransaction(out ITransaction refTransaction);
+        // messagingForCore: MSMQ's runtime (mqrt.dll) is replaced by messagingForCore's queue store (see
+        // UnsafeNativeMethods), here and in every MQ function below.
         public static int MQBeginTransaction(out ITransaction refTransaction)
         {
-            try
-            {
-                return IntMQBeginTransaction(out refTransaction);
-            }
-            catch (DllNotFoundException)
-            {
-                throw new InvalidOperationException(Res.GetString(Res.MSMQNotInstalled));
-            }
+            return QueueStore.BeginTransaction(out refTransaction);
         }
 
-        [DllImport(ExternDll.Mqrt, CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.MayFail)]
-        public static extern int MQCloseQueue(IntPtr handle);
+        public static int MQCloseQueue(IntPtr handle)
+        {
+            return QueueStore.CloseQueue(handle);
+        }
 
-        [DllImport(ExternDll.Mqrt, EntryPoint = "MQPathNameToFormatName", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
-        private static extern int IntMQPathNameToFormatName(string pathName, StringBuilder formatName, ref int count);
         public static int MQPathNameToFormatName(string pathName, StringBuilder formatName, ref int count)
         {
-            try
-            {
-                return IntMQPathNameToFormatName(pathName, formatName, ref count);
-            }
-            catch (DllNotFoundException)
-            {
-                throw new InvalidOperationException(Res.GetString(Res.MSMQNotInstalled));
-            }
+            return QueueStore.PathNameToFormatName(pathName, formatName, ref count);
         }
 
-        [DllImport(ExternDll.Mqrt, EntryPoint = "MQInstanceToFormatName", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
-        public static extern int IntMQInstanceToFormatName(byte[] id, StringBuilder formatName, ref int count);
         public static int MQInstanceToFormatName(byte[] id, StringBuilder formatName, ref int count)
         {
-            try
-            {
-                return IntMQInstanceToFormatName(id, formatName, ref count);
-            }
-            catch (DllNotFoundException)
-            {
-                throw new InvalidOperationException(Res.GetString(Res.MSMQNotInstalled));
-            }
+            return QueueStore.InstanceToFormatName();
         }
 
-        [DllImport(ExternDll.Mqrt, CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
-        public static extern int MQCreateCursor(MessageQueueHandle handle, out CursorHandle cursorHandle);
+        public static int MQCreateCursor(MessageQueueHandle handle, out CursorHandle cursorHandle)
+        {
+            return QueueStore.CreateCursor(handle, out cursorHandle);
+        }
 
-        [DllImport(ExternDll.Mqrt, CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.MayFail)]
-        public static extern int MQCloseCursor(IntPtr cursorHandle);
+        public static int MQCloseCursor(IntPtr cursorHandle)
+        {
+            return QueueStore.CloseCursor(cursorHandle);
+        }
 
-        [DllImport(ExternDll.Mqrt, CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.MayFail)]
-        public static extern void MQFreeSecurityContext(IntPtr handle);
+        public static void MQFreeSecurityContext(IntPtr handle)
+        {
+        }
 
-        [DllImport(ExternDll.Mqrt, CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.MayFail)]
-        public static extern int MQLocateEnd(IntPtr enumHandle);
+        public static int MQLocateEnd(IntPtr enumHandle)
+        {
+            return 0;
+        }
 
-        [DllImport(ExternDll.Mqrt, CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
-        public static extern int MQLocateNext(LocatorHandle enumHandle, ref int propertyCount, [Out] MQPROPVARIANTS[] variantArray);
+        public static int MQLocateNext(LocatorHandle enumHandle, ref int propertyCount, [Out] MQPROPVARIANTS[] variantArray)
+        {
+            return QueueStore.LocateNext();
+        }
 
-        [DllImport(ExternDll.Mqrt, CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
-        public static extern void MQFreeMemory(IntPtr memory);
+        public static void MQFreeMemory(IntPtr memory)
+        {
+            QueueStore.FreeMemory(memory);
+        }
 
-        [DllImport(ExternDll.Kernel32, ExactSpelling = true, CharSet = System.Runtime.InteropServices.CharSet.Auto, SetLastError = true)]
-        public static extern bool GetHandleInformation(SafeHandle handle, out int handleInformation);
+        // messagingForCore: the store's queue handles aren't file handles, so asynchronous receives take MSMQ's callback
+        // path rather than the I/O completion port (ThreadPool.BindHandle and overlapped I/O, Windows only).
+        public static bool GetHandleInformation(SafeHandle handle, out int handleInformation)
+        {
+            handleInformation = 0;
+            return false;
+        }
 
         [DllImport(ExternDll.Kernel32)]
         public static extern IntPtr LocalFree(IntPtr hMem);
@@ -104,8 +98,12 @@ namespace System.Messaging.Interop
                                                   IntPtr oldacl,
                                                   out IntPtr newAcl);
 
-        [DllImport(ExternDll.Kernel32, CharSet = CharSet.Auto)]
-        public static extern bool GetComputerName(StringBuilder lpBuffer, int[] nSize);
+        // messagingForCore: the computer's name from .NET, on every platform (Kernel32's GetComputerName is Windows only).
+        public static bool GetComputerName(StringBuilder lpBuffer, int[] nSize)
+        {
+            lpBuffer.Clear().Append(Environment.MachineName);
+            return true;
+        }
 
         public const int FORMAT_MESSAGE_ALLOCATE_BUFFER = 0x00000100,
             FORMAT_MESSAGE_IGNORE_INSERTS = 0x00000200,
@@ -115,9 +113,13 @@ namespace System.Messaging.Interop
             FORMAT_MESSAGE_ARGUMENT_ARRAY = 0x00002000,
             FORMAT_MESSAGE_MAX_WIDTH_MASK = 0x000000FF;
 
-        [DllImport(ExternDll.Kernel32, CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-        public static extern int FormatMessage(int dwFlags, IntPtr lpSource, int dwMessageId,
-                                                int dwLanguageId, StringBuilder lpBuffer, int nSize, IntPtr arguments);
+        // messagingForCore: no system message table (Windows only): 0, "not found", so MessageQueueException uses its own
+        // "UnknownError" text for a code that has no string.
+        public static int FormatMessage(int dwFlags, IntPtr lpSource, int dwMessageId,
+                                                int dwLanguageId, StringBuilder lpBuffer, int nSize, IntPtr arguments)
+        {
+            return 0;
+        }
 
     }
 }
