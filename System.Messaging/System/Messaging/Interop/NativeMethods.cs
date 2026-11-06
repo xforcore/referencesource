@@ -15,6 +15,7 @@ namespace System.Messaging.Interop
     using Microsoft.Win32;
     using System.Security;
     using System.Security.Permissions;
+    using System.Messaging.Store; // messagingForCore: the queue store
 
     [System.Runtime.InteropServices.ComVisible(false)]
     internal static class NativeMethods
@@ -319,26 +320,24 @@ namespace System.Messaging.Interop
 
         // This call is here because we don't want to invent a separate MessageQueuePermission
         // for this call, and there's no suitable existing permission. 
-        [DllImport(ExternDll.Mqrt, EntryPoint = "MQGetSecurityContextEx", CharSet = CharSet.Unicode)]
-        private static extern int IntMQGetSecurityContextEx(IntPtr lpCertBuffer, int dwCertBufferLength, out SecurityContextHandle phSecurityContext);
+        // messagingForCore: MSMQ's runtime is replaced by the queue store (see UnsafeNativeMethods), which has no
+        // security contexts; it throws, naming the limitation.
         public static int MQGetSecurityContextEx(out SecurityContextHandle securityContext)
         {
-            try
-            {
-                return IntMQGetSecurityContextEx(IntPtr.Zero, 0, out securityContext);
-            }
-            catch (DllNotFoundException)
-            {
-                throw new InvalidOperationException(Res.GetString(Res.MSMQNotInstalled));
-            }
+            return QueueStore.GetSecurityContext(out securityContext);
         }
 
-        [DllImport(ExternDll.Ole32, PreserveSig = false)]
-        [return: MarshalAs(UnmanagedType.Interface)]
-        public static extern object OleLoadFromStream(IStream stream, [In] ref Guid iid);
+        // messagingForCore: COM objects in message bodies (ActiveXMessageFormatter with an IPersistStream object) need
+        // Ole32, which messagingForCore doesn't call; the store throws, naming the limitation.
+        public static object OleLoadFromStream(IStream stream, [In] ref Guid iid)
+        {
+            throw QueueStore.ComObjectsNotSupported();
+        }
 
-        [DllImport(ExternDll.Ole32, PreserveSig = false)]
-        public static extern void OleSaveToStream(IPersistStream persistStream, IStream stream);
+        public static void OleSaveToStream(IPersistStream persistStream, IStream stream)
+        {
+            throw QueueStore.ComObjectsNotSupported();
+        }
 
         [StructLayout(LayoutKind.Sequential)]
         public class SECURITY_DESCRIPTOR
