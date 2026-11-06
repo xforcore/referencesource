@@ -17,6 +17,14 @@ namespace System.Messaging.Interop
 
         MessageQueueHandle() : base(true) { }
 
+        // messagingForCore: the queue store (messagingForCore's own, in place of mqrt.dll) makes the handles that the
+        // marshaller made from MQOpenQueue's out parameter.
+        internal static MessageQueueHandle FromStore(IntPtr value)
+        {
+            MessageQueueHandle result = new MessageQueueHandle();
+            result.SetHandle(value);
+            return result;
+        }
 
         protected override bool ReleaseHandle()
         {
@@ -52,6 +60,15 @@ namespace System.Messaging.Interop
         public static readonly CursorHandle NullHandle = new InvalidCursorHandle();
 
         protected CursorHandle() : base(true) { }
+
+        // messagingForCore: the queue store makes the handles that the marshaller made from MQCreateCursor's out
+        // parameter.
+        internal static CursorHandle FromStore(IntPtr value)
+        {
+            CursorHandle result = new CursorHandle();
+            result.SetHandle(value);
+            return result;
+        }
 
         protected override bool ReleaseHandle()
         {
