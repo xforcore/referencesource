@@ -107,6 +107,7 @@ namespace System.Workflow.Activities.Rules
             RuleDefinitions rules = (RuleDefinitions)activity.GetValue(RuleDefinitions.RuleDefinitionsProperty);
             if (rules == null)
             {
+#if !WORKFLOWFORCORE // workflowForCore: the designer's loader, which is never there (docs/LIFT.md).
                 WorkflowDesignerLoader loader = (WorkflowDesignerLoader)serviceProvider.GetService(typeof(WorkflowDesignerLoader));
                 if (loader != null)
                 {
@@ -136,6 +137,7 @@ namespace System.Workflow.Activities.Rules
                         // 
                     }
                 }
+#endif
                 activity.SetValue(RuleDefinitions.RuleDefinitionsProperty, rules);
             }
             return rules;
@@ -146,6 +148,7 @@ namespace System.Workflow.Activities.Rules
             RuleDefinitions rules = (RuleDefinitions)activity.GetValue(RuleDefinitions.RuleDefinitionsProperty);
             if (rules != null)
             {
+#if !WORKFLOWFORCORE // workflowForCore: the designer's loader, which is never there (docs/LIFT.md).
                 WorkflowDesignerLoader loader = (WorkflowDesignerLoader)serviceProvider.GetService(typeof(WorkflowDesignerLoader));
                 if (loader != null)
                 {
@@ -170,6 +173,7 @@ namespace System.Workflow.Activities.Rules
                         }
                     }
                 }
+#endif
             }
         }
 

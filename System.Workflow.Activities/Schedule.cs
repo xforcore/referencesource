@@ -5,7 +5,9 @@ namespace System.Workflow.Activities
     using System.Xml;
     using System.Text;
     using System.Drawing;
+#if !WORKFLOWFORCORE // workflowForCore: no Windows Forms on .NET (the namespaces aren't used here).
     using System.Windows.Forms;
+#endif
     using System.Collections;
     using System.Collections.Specialized;
     using System.Collections.Generic;

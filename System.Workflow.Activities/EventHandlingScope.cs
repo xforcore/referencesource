@@ -259,6 +259,7 @@ namespace System.Workflow.Activities
     }
     #endregion
 
+#if !WORKFLOWFORCORE // workflowForCore: the activity's designer and theme (docs/LIFT.md).
     #region Class EventHandlingScopeDesigner
 
     [ActivityDesignerTheme(typeof(EventHandlingScopeActivityDesignerTheme))]
@@ -309,4 +310,5 @@ namespace System.Workflow.Activities
         }
     }
     #endregion
+#endif
 }

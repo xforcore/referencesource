@@ -821,6 +821,7 @@ namespace System.Workflow.ComponentModel.Compiler
                     error.PropertyName = GetFullPropertyName(manager) + ".Name";
                 }
 
+#if !WORKFLOWFORCORE // workflowForCore: the designer's loader, which is never there; the else branch always runs (docs/LIFT.md).
                 IDesignerHost designerHost = manager.GetService(typeof(IDesignerHost)) as IDesignerHost;
                 WorkflowDesignerLoader loader = manager.GetService(typeof(WorkflowDesignerLoader)) as WorkflowDesignerLoader;
                 if (designerHost != null && loader != null)
@@ -874,6 +875,7 @@ namespace System.Workflow.ComponentModel.Compiler
                     }
                 }
                 else
+#endif
                 {
                     MemberInfo memberInfo = MemberBind.GetMemberInfo(refActivity.GetType(), bind.Path);
                     if (memberInfo == null || (memberInfo is PropertyInfo && !(memberInfo as PropertyInfo).CanRead))

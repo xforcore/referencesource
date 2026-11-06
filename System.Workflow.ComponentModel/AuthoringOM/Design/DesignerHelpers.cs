@@ -11,12 +11,16 @@ namespace System.Workflow.ComponentModel.Design
     using System.Collections.ObjectModel;
     using System.Diagnostics;
     using System.Globalization;
+#if !WORKFLOWFORCORE // workflowForCore: no Windows Forms or GDI+ (docs/LIFT.md).
     using System.Drawing.Text;
     using System.Windows.Forms;
     using System.Windows.Forms.Design;
+#endif
     using System.ComponentModel;
+#if !WORKFLOWFORCORE
     using System.Drawing.Imaging;
     using System.Drawing.Drawing2D;
+#endif
     using System.Collections.Generic;
     using System.ComponentModel.Design;
     using System.Runtime.InteropServices;
@@ -25,6 +29,7 @@ namespace System.Workflow.ComponentModel.Design
     using Microsoft.Win32;
     using System.Runtime.CompilerServices;
 
+#if !WORKFLOWFORCORE // workflowForCore: the designers (docs/LIFT.md); only GenerateUniqueIdentifier, which CompositeActivity names new activities with, is compiled.
     #region Enum LightSourcePosition
     [Flags]
     internal enum LightSourcePosition
@@ -1169,6 +1174,7 @@ namespace System.Workflow.ComponentModel.Design
         [DllImport("user32", CharSet = CharSet.Auto, SetLastError = true)]
         internal static extern int GetWindowLong(IntPtr hWnd, int nIndex);
     }
+#endif
 
     internal static class DesignerHelpers
     {
@@ -1180,6 +1186,7 @@ namespace System.Workflow.ComponentModel.Design
         internal const string IfElseBranchTypeRef = "System.Workflow.Activities.IfElseBranchActivity, " + AssemblyRef.ActivitiesAssemblyRef;
         internal const string CodeActivityTypeRef = "System.Workflow.Activities.CodeActivity, " + AssemblyRef.ActivitiesAssemblyRef;
 
+#if !WORKFLOWFORCORE // workflowForCore: the designers (docs/LIFT.md); only GenerateUniqueIdentifier, which CompositeActivity names new activities with, is compiled.
         internal static Point SnapToGrid(Point location)
         {
             AmbientTheme ambientTheme = WorkflowTheme.CurrentTheme.AmbientTheme;
@@ -1689,18 +1696,21 @@ namespace System.Workflow.ComponentModel.Design
             return uniqueName;
         }
 
+#endif
         internal static string GenerateUniqueIdentifier(IServiceProvider serviceProvider, string baseIdentifier, string[] existingNames)
         {
             CodeDomProvider provider = null;
             if (serviceProvider != null)
             {
                 provider = serviceProvider.GetService(typeof(CodeDomProvider)) as CodeDomProvider;
+#if !WORKFLOWFORCORE // workflowForCore: the designer's identifier service (docs/LIFT.md).
                 if (provider == null)
                 {
                     IdentifierCreationService identifierCreationService = serviceProvider.GetService(typeof(IIdentifierCreationService)) as IdentifierCreationService;
                     if (identifierCreationService != null)
                         provider = identifierCreationService.Provider;
                 }
+#endif
             }
 
             if (provider != null)
@@ -1724,6 +1734,7 @@ namespace System.Workflow.ComponentModel.Design
             return finalIdentifier;
         }
 
+#if !WORKFLOWFORCORE // workflowForCore: the designers (docs/LIFT.md); only GenerateUniqueIdentifier, which CompositeActivity names new activities with, is compiled.
         internal static IDictionary<string, string> GetDeclarativeRules(Activity activity)
         {
             IDictionary<string, string> rules = new Dictionary<string, string>();
@@ -1808,6 +1819,7 @@ namespace System.Workflow.ComponentModel.Design
 
             return true;
         }
+#endif
     }
 
     #region Class DesignerUserDataKeys
@@ -1827,6 +1839,7 @@ namespace System.Workflow.ComponentModel.Design
     }
     #endregion
 
+#if !WORKFLOWFORCORE // workflowForCore: the designers (docs/LIFT.md); only GenerateUniqueIdentifier, which CompositeActivity names new activities with, is compiled.
     #region Class DesignerGeometry
     internal static class DesignerGeometryHelper
     {
@@ -1991,4 +2004,5 @@ namespace System.Workflow.ComponentModel.Design
         #endregion
     }
     #endregion
+#endif
 }

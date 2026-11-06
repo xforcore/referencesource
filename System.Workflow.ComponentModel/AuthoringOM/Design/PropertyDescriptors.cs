@@ -10,8 +10,10 @@ namespace System.Workflow.ComponentModel.Design
     using System.Collections.Generic;
     using System.Reflection;
     using System.CodeDom;
+#if !WORKFLOWFORCORE // workflowForCore: no Windows Forms (docs/LIFT.md).
     using System.Windows.Forms;
     using System.Windows.Forms.Design;
+#endif
     using System.Workflow.ComponentModel.Compiler;
     using System.Workflow.ComponentModel.Serialization;
 
@@ -51,7 +53,9 @@ namespace System.Workflow.ComponentModel.Design
                 string newID = value as string;
                 identifierCreationService.ValidateIdentifier(activity, newID);
 
+#if !WORKFLOWFORCORE // workflowForCore: the designer's site (docs/LIFT.md).
                 DesignerHelpers.UpdateSiteName(activity, newID);
+#endif
                 base.SetValue(component, value);
             }
         }
@@ -128,8 +132,10 @@ namespace System.Workflow.ComponentModel.Design
                 ((Activity)host.RootComponent).SetValue(WorkflowMarkupSerializer.XClassProperty, newClassName);
                 base.SetValue(component, value);
 
+#if !WORKFLOWFORCORE // workflowForCore: the designer's site (docs/LIFT.md).
                 // Update the site name so the component name shows up correctly in the designer
                 DesignerHelpers.UpdateSiteName((Activity)host.RootComponent, name);
+#endif
             }
         }
 
@@ -295,11 +301,13 @@ namespace System.Workflow.ComponentModel.Design
                 foreach (Attribute attribute in base.Attributes)
                     attributes.Add(attribute);
 
+#if !WORKFLOWFORCORE // workflowForCore: the property grid's bind editor (docs/LIFT.md).
                 object uiTypeEditor = RealPropertyDescriptor.GetEditor(typeof(UITypeEditor));
                 object value = (PropertyOwner != null) ? GetValue(PropertyOwner) : null;
                 bool propertiesSupported = RealPropertyDescriptor.Converter.GetPropertiesSupported((PropertyOwner != null) ? new TypeDescriptorContext(ServiceProvider, RealPropertyDescriptor, PropertyOwner) : null);
                 if (((uiTypeEditor == null && !propertiesSupported) || value is ActivityBind) && !IsReadOnly)
                     attributes.Add(new EditorAttribute(typeof(BindUITypeEditor), typeof(UITypeEditor)));
+#endif
 
                 return new AttributeCollection(attributes.ToArray());
             }
@@ -309,6 +317,7 @@ namespace System.Workflow.ComponentModel.Design
         {
             //If the converter is simple type converter and there is a simple UITypeEditor
             object editor = base.GetEditor(editorBaseType);
+#if !WORKFLOWFORCORE // workflowForCore: the property grid's bind editor (docs/LIFT.md).
             if (editorBaseType == typeof(UITypeEditor) && !IsReadOnly)
             {
                 object value = (PropertyOwner != null) ? GetValue(PropertyOwner) : null;
@@ -316,6 +325,7 @@ namespace System.Workflow.ComponentModel.Design
                 if (value is ActivityBind || (editor == null && !propertiesSupported))
                     editor = new BindUITypeEditor();
             }
+#endif
             return editor;
         }
 

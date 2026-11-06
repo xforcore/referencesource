@@ -10,7 +10,9 @@ namespace System.Workflow.Activities
     using System.ComponentModel;
     using System.ComponentModel.Design;
     using System.ComponentModel.Design.Serialization;
+#if !WORKFLOWFORCORE // workflowForCore: no Windows Forms on .NET (the namespaces aren't used here).
     using System.Windows.Forms;
+#endif
     using System.Diagnostics;
     using System.Drawing;
     using System.Drawing.Design;

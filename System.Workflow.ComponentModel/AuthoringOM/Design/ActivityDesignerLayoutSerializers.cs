@@ -12,6 +12,7 @@ using System.Drawing;
 
 namespace System.Workflow.ComponentModel.Design
 {
+#if !WORKFLOWFORCORE // workflowForCore: the designers' layout serializers (docs/LIFT.md). The Color, Size and Point serializers below are the markup serializer's.
     #region Class ActivityDesignerLayoutSerializer
     [Obsolete("The System.Workflow.* types are deprecated.  Instead, please use the new types from System.Activities.*")]
     public class ActivityDesignerLayoutSerializer : WorkflowMarkupSerializer
@@ -302,6 +303,7 @@ namespace System.Workflow.ComponentModel.Design
         #endregion
     }
     #endregion
+#endif
 
     #region Class ColorMarkupSerializer
     internal sealed class ColorMarkupSerializer : WorkflowMarkupSerializer

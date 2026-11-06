@@ -13,7 +13,9 @@ namespace System.Workflow.Activities
     using System.Workflow.ComponentModel.Design;
     using System.Collections.Generic;
     using System.Workflow.Activities.Rules;
+#if !WORKFLOWFORCORE // workflowForCore: the rule editor isn't compiled (docs/LIFT.md).
     using System.Workflow.Activities.Rules.Design;
+#endif
     using System.Workflow.Runtime;
     using System.Workflow.ComponentModel.Compiler;
     using System.Drawing.Design;

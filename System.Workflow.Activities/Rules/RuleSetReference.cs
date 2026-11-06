@@ -6,7 +6,9 @@ using System.Text;
 using System.Workflow.ComponentModel;
 using System.Workflow.ComponentModel.Design;
 using System.Drawing.Design;
+#if !WORKFLOWFORCORE // workflowForCore: the rule editor isn't compiled (docs/LIFT.md).
 using System.Workflow.Activities.Rules.Design;
+#endif
 using System.ComponentModel.Design.Serialization;
 using System.Workflow.ComponentModel.Compiler;
 using System.Workflow.ComponentModel.Serialization;

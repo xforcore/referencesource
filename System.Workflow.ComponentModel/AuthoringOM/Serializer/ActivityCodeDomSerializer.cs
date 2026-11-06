@@ -19,10 +19,15 @@ namespace System.Workflow.ComponentModel.Serialization
 
     #region Class ActivityCodeDomSerializer
     [Obsolete("The System.Workflow.* types are deprecated.  Instead, please use the new types from System.Activities.*")]
+#if WORKFLOWFORCORE // workflowForCore: only the MarkupFileName attached property, which the markup serializer sets; the CodeDom serializer is Visual Studio's (System.Design's CodeDomSerializer isn't on .NET, docs/LIFT.md).
+    public class ActivityCodeDomSerializer
+#else
     public class ActivityCodeDomSerializer : DependencyObjectCodeDomSerializer
+#endif
     {
         public static readonly DependencyProperty MarkupFileNameProperty = DependencyProperty.RegisterAttached("MarkupFileName", typeof(string), typeof(ActivityCodeDomSerializer), new PropertyMetadata(null, new Attribute[] { new DesignerSerializationVisibilityAttribute(DesignerSerializationVisibility.Hidden) }));
 
+#if !WORKFLOWFORCORE
         public ActivityCodeDomSerializer()
         {
         }
@@ -60,6 +65,7 @@ namespace System.Workflow.ComponentModel.Serialization
         }
 
         #endregion
+#endif
     }
     #endregion
 

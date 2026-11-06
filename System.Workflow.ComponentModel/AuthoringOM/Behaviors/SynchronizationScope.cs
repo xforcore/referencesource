@@ -145,6 +145,7 @@ namespace System.Workflow.ComponentModel
     }
     #endregion
 
+#if !WORKFLOWFORCORE // workflowForCore: a property editor for Visual Studio's designer (docs/LIFT.md).
     internal sealed class SynchronizationHandlesEditor : UITypeEditor
     {
         private MultilineStringEditor stringEditor = new MultilineStringEditor();
@@ -168,4 +169,5 @@ namespace System.Workflow.ComponentModel
             return stringEditor.GetPaintValueSupported(context);
         }
     }
+#endif
 }

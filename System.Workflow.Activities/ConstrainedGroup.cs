@@ -8,11 +8,15 @@ namespace System.Workflow.Activities
     using System.CodeDom;
     using System.Drawing;
     using System.Collections;
+#if !WORKFLOWFORCORE // workflowForCore: no Windows Forms on .NET (the namespaces aren't used here).
     using System.Windows.Forms;
+#endif
     using System.ComponentModel;
     using System.Drawing.Drawing2D;
     using System.Collections.Generic;
+#if !WORKFLOWFORCORE // workflowForCore: no Windows Forms on .NET (the namespaces aren't used here).
     using System.Windows.Forms.Design;
+#endif
     using System.ComponentModel.Design;
     using System.Workflow.ComponentModel;
     using System.Workflow.ComponentModel.Design;

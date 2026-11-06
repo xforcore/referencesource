@@ -6,15 +6,19 @@ namespace System.Workflow.ComponentModel.Design
     using System.Collections.ObjectModel;
     using System.Collections.Generic;
     using System.Collections.Specialized;
+#if !WORKFLOWFORCORE // workflowForCore: the types that need Windows Forms or GDI+ are the designers', and aren't compiled (docs/LIFT.md).
     using System.Windows.Forms;
     using System.Windows.Forms.Design;
+#endif
     using System.ComponentModel;
     using System.ComponentModel.Design;
     using System.CodeDom;
     using System.IO;
     using System.Reflection;
+#if !WORKFLOWFORCORE
     using System.Drawing.Printing;
     using System.Drawing.Drawing2D;
+#endif
     using System.Runtime.InteropServices;
     using System.Workflow.ComponentModel;
     using System.Workflow.ComponentModel.Compiler;
@@ -55,6 +59,7 @@ namespace System.Workflow.ComponentModel.Design
 
     #endregion
 
+#if !WORKFLOWFORCORE // workflowForCore: designer surface (docs/LIFT.md).
     #region Interface IExtendedUIService
     [Obsolete("The System.Workflow.* types are deprecated.  Instead, please use the new types from System.Activities.*")]
     public interface IExtendedUIService
@@ -101,9 +106,11 @@ namespace System.Workflow.ComponentModel.Design
         Type GetRuntimeType(Type reflectionType);
     }
     #endregion
+#endif
 
     #endregion
 
+#if !WORKFLOWFORCORE // workflowForCore: designer surface (docs/LIFT.md).
     #region Design Surface related classes and Interfaces
 
     #region Interface IWorkflowDesignerMessageSink
@@ -230,6 +237,7 @@ namespace System.Workflow.ComponentModel.Design
     #endregion
 
     #endregion
+#endif
 
     #region Classes, Interfaces and enums used by Designers
 
@@ -299,6 +307,7 @@ namespace System.Workflow.ComponentModel.Design
     }
     #endregion
 
+#if !WORKFLOWFORCORE // workflowForCore: designer surface (docs/LIFT.md).
     #region Class ActivityDesignerLayoutEventArgs
     /// <summary>
     /// Contains arguments passed to layout functions of ActivityDesigner
@@ -454,6 +463,7 @@ namespace System.Workflow.ComponentModel.Design
         }
     }
     #endregion
+#endif
 
     #region Enum DesignerEdges
     [Flags]
@@ -469,6 +479,7 @@ namespace System.Workflow.ComponentModel.Design
     }
     #endregion
 
+#if !WORKFLOWFORCORE // workflowForCore: designer surface (docs/LIFT.md).
     #region Interface IDesignerGlyphProvider
     /// <summary>
     /// Allows the user to add custom glyph providers. 
@@ -508,6 +519,7 @@ namespace System.Workflow.ComponentModel.Design
         ActivityDesignerVerbCollection GetVerbs(ActivityDesigner activityDesigner);
     }
     #endregion
+#endif
 
     #region Interface IPersistUIState
     [Obsolete("The System.Workflow.* types are deprecated.  Instead, please use the new types from System.Activities.*")]
@@ -518,6 +530,7 @@ namespace System.Workflow.ComponentModel.Design
     }
     #endregion
 
+#if !WORKFLOWFORCORE // workflowForCore: designer surface (docs/LIFT.md).
     #region Interface IWorkflowRootDesigner
     [Obsolete("The System.Workflow.* types are deprecated.  Instead, please use the new types from System.Activities.*")]
     public interface IWorkflowRootDesigner : IRootDesigner
@@ -528,6 +541,7 @@ namespace System.Workflow.ComponentModel.Design
         bool SupportsLayoutPersistence { get; }
     }
     #endregion
+#endif
 
     #region Used for keyboard navigation
     [Obsolete("The System.Workflow.* types are deprecated.  Instead, please use the new types from System.Activities.*")]
@@ -559,6 +573,7 @@ namespace System.Workflow.ComponentModel.Design
     }
     #endregion
 
+#if !WORKFLOWFORCORE // workflowForCore: designer surface (docs/LIFT.md).
     #region Class HitTestInfo
     /// <summary>
     /// Identifies the part of the designer at the specified location. 
@@ -844,6 +859,7 @@ namespace System.Workflow.ComponentModel.Design
         }
     }
     #endregion
+#endif
 
     #region Enum DesignerVerbGroup
     /// <summary>
@@ -861,6 +877,7 @@ namespace System.Workflow.ComponentModel.Design
     }
     #endregion
 
+#if !WORKFLOWFORCORE // workflowForCore: designer surface (docs/LIFT.md).
     #region Class ActivityDesignerVerb
     /// <summary>
     /// DesignerVerb class specific to ActivityDesigners. 
@@ -1108,6 +1125,7 @@ namespace System.Workflow.ComponentModel.Design
     }
     #endregion
 
+#endif
     #endregion
 
     #region ITypeFilterProvider Interface

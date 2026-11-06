@@ -238,6 +238,7 @@ namespace System.Workflow.Interop
             return hr;
         }
 
+#if !WORKFLOWFORCORE // workflowForCore: the designers' GDI and user32 calls (docs/LIFT.md).
         internal static IntPtr ListView_GetHeader(IntPtr hWndLV)
         {
             return SendMessage(hWndLV, LVM_GETHEADER, IntPtr.Zero, IntPtr.Zero);
@@ -311,6 +312,7 @@ namespace System.Workflow.Interop
 
         [DllImport("user32.dll")]
         internal static extern int SetWindowPos(IntPtr hWnd, IntPtr hwndInsertAfter, int x, int y, int width, int height, int flags);
+#endif
 
 
         /// <summary>
@@ -440,6 +442,7 @@ namespace System.Workflow.Interop
 
             }
 
+#if !WORKFLOWFORCORE // workflowForCore: GDI+'s Matrix, for the designers (docs/LIFT.md).
             public XFORM(System.Drawing.Drawing2D.Matrix transform)
             {
                 this.eM11 = transform.Elements[0];
@@ -449,6 +452,7 @@ namespace System.Workflow.Interop
                 this.eDx = transform.Elements[4];
                 this.eDy = transform.Elements[5];
             }
+#endif
         }
 
         [StructLayout(LayoutKind.Sequential)]

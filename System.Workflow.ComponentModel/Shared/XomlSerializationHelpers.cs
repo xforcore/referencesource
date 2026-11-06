@@ -220,6 +220,7 @@ namespace System.Workflow.ComponentModel.Serialization
                 // get class and namespace names
                 string activityNamespaceName, activityClassName;
                 Helpers.GetNamespaceAndClassName(activityFullClassName, out activityNamespaceName, out activityClassName);
+#if !WORKFLOWFORCORE // workflowForCore: the code-beside class of a XOML file, which Visual Studio's CodeDom serializers write (System.Design's TypeCodeDomSerializer isn't on .NET; phase 2, docs/LIFT.md).
                 if (codeDomProvider.IsValidIdentifier(activityClassName))
                 {
                     DesignerSerializationManager designerSerializationManager = new DesignerSerializationManager(serviceProvider);
@@ -299,6 +300,7 @@ namespace System.Workflow.ComponentModel.Serialization
                         }
                     }
                 }
+#endif
             }
 
             // generate code for x:Code

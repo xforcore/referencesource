@@ -45,26 +45,48 @@ namespace System.Workflow.ComponentModel.Serialization
         {
             WorkflowMarkupSerializerMapping.wellKnownTypes = new Dictionary<string, Type>();
             WorkflowMarkupSerializerMapping.wellKnownTypes.Add(typeof(ThrowActivity).Name, typeof(ThrowActivity));
+#if !WORKFLOWFORCORE // workflowForCore: designer types (docs/LIFT.md).
             WorkflowMarkupSerializerMapping.wellKnownTypes.Add(typeof(ThrowDesigner).Name, typeof(ThrowDesigner));
+#endif
             WorkflowMarkupSerializerMapping.wellKnownTypes.Add(typeof(SuspendActivity).Name, typeof(SuspendActivity));
+#if !WORKFLOWFORCORE // workflowForCore: designer types (docs/LIFT.md).
             WorkflowMarkupSerializerMapping.wellKnownTypes.Add(typeof(SuspendDesigner).Name, typeof(SuspendDesigner));
+#endif
             WorkflowMarkupSerializerMapping.wellKnownTypes.Add(typeof(CancellationHandlerActivity).Name, typeof(CancellationHandlerActivity));
+#if !WORKFLOWFORCORE // workflowForCore: designer types (docs/LIFT.md).
             WorkflowMarkupSerializerMapping.wellKnownTypes.Add(typeof(CancellationHandlerActivityDesigner).Name, typeof(CancellationHandlerActivityDesigner));
+#endif
             WorkflowMarkupSerializerMapping.wellKnownTypes.Add(typeof(CompensateActivity).Name, typeof(CompensateActivity));
+#if !WORKFLOWFORCORE // workflowForCore: designer types (docs/LIFT.md).
             WorkflowMarkupSerializerMapping.wellKnownTypes.Add(typeof(CompensateDesigner).Name, typeof(CompensateDesigner));
+#endif
             WorkflowMarkupSerializerMapping.wellKnownTypes.Add(typeof(CompensationHandlerActivity).Name, typeof(CompensationHandlerActivity));
+#if !WORKFLOWFORCORE // workflowForCore: designer types (docs/LIFT.md).
             WorkflowMarkupSerializerMapping.wellKnownTypes.Add(typeof(CompensationHandlerActivityDesigner).Name, typeof(CompensationHandlerActivityDesigner));
+#endif
             WorkflowMarkupSerializerMapping.wellKnownTypes.Add(typeof(FaultHandlerActivity).Name, typeof(FaultHandlerActivity));
+#if !WORKFLOWFORCORE // workflowForCore: designer types (docs/LIFT.md).
             WorkflowMarkupSerializerMapping.wellKnownTypes.Add(typeof(FaultHandlerActivityDesigner).Name, typeof(FaultHandlerActivityDesigner));
+#endif
             WorkflowMarkupSerializerMapping.wellKnownTypes.Add(typeof(FaultHandlersActivity).Name, typeof(FaultHandlersActivity));
+#if !WORKFLOWFORCORE // workflowForCore: designer types (docs/LIFT.md).
             WorkflowMarkupSerializerMapping.wellKnownTypes.Add(typeof(FaultHandlersActivityDesigner).Name, typeof(FaultHandlersActivityDesigner));
+#endif
             WorkflowMarkupSerializerMapping.wellKnownTypes.Add(typeof(SynchronizationScopeActivity).Name, typeof(SynchronizationScopeActivity));
+#if !WORKFLOWFORCORE // workflowForCore: designer types (docs/LIFT.md).
             WorkflowMarkupSerializerMapping.wellKnownTypes.Add(typeof(SequenceDesigner).Name, typeof(SequenceDesigner));
+#endif
             WorkflowMarkupSerializerMapping.wellKnownTypes.Add(typeof(TransactionScopeActivity).Name, typeof(TransactionScopeActivity));
+#if !WORKFLOWFORCORE // workflowForCore: designer types (docs/LIFT.md).
             WorkflowMarkupSerializerMapping.wellKnownTypes.Add(typeof(TransactionScopeActivityDesigner).Name, typeof(TransactionScopeActivityDesigner));
+#endif
+#if !WORKFLOWFORCORE // workflowForCore: designer types (docs/LIFT.md).
             WorkflowMarkupSerializerMapping.wellKnownTypes.Add(typeof(PropertySegment).Name, typeof(PropertySegment));
+#endif
             WorkflowMarkupSerializerMapping.wellKnownTypes.Add(typeof(CompensatableTransactionScopeActivity).Name, typeof(CompensatableTransactionScopeActivity));
+#if !WORKFLOWFORCORE // workflowForCore: designer types (docs/LIFT.md).
             WorkflowMarkupSerializerMapping.wellKnownTypes.Add(typeof(ActivityDesigner).Name, typeof(ActivityDesigner));
+#endif
 
 
             //I am hard coding the well known mappings here instead of going through the assemblies as we want the mappings to be in

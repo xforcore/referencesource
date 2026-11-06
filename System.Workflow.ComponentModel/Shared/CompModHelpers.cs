@@ -25,7 +25,9 @@ namespace System.Workflow.ComponentModel.Design
     using System.Workflow.ComponentModel.Serialization;
     using System.IO;
     using System.Runtime.Serialization.Formatters.Binary;
+#if !WORKFLOWFORCORE // workflowForCore: no Windows Forms on .NET (the namespaces aren't used here).
     using System.Windows.Forms;
+#endif
     using System.Drawing;
     using System.Drawing.Design;
     using System.Workflow.ComponentModel;
@@ -58,6 +60,7 @@ namespace System.Workflow.ComponentModel.Design
 
         internal const int FILENAME_MAX = 260; //"stdio.h"
 
+#if !WORKFLOWFORCORE // workflowForCore: Visual Studio's per-user registry and the designers' view state (docs/LIFT.md).
         [SuppressMessage("Microsoft.Globalization", "CA1307:SpecifyStringComparison", Justification = "LastIndexOf(\"\\\") not a security issue.")]
         [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         internal static string PerUserRegistryKey
@@ -74,7 +77,9 @@ namespace System.Workflow.ComponentModel.Design
                 return keyPath;
             }
         }
+#endif
 
+#if !WORKFLOWFORCORE // workflowForCore: Visual Studio's per-user registry and the designers' view state (docs/LIFT.md).
         [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         private static string TypeProviderRegistryKeyPath
         {
@@ -83,6 +88,7 @@ namespace System.Workflow.ComponentModel.Design
                 return PerUserRegistryKey + "\\TypeProvider";
             }
         }
+#endif
 
         [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         internal static bool IsFileNameValid(string fileName)
@@ -286,6 +292,7 @@ namespace System.Workflow.ComponentModel.Design
             return activity;
         }
 
+#if !WORKFLOWFORCORE // workflowForCore: Visual Studio's per-user registry and the designers' view state (docs/LIFT.md).
         [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         internal static Stream SerializeDesignersToStream(ICollection activities)
         {
@@ -331,7 +338,9 @@ namespace System.Workflow.ComponentModel.Design
 
             return stateStream;
         }
+#endif
 
+#if !WORKFLOWFORCORE // workflowForCore: Visual Studio's per-user registry and the designers' view state (docs/LIFT.md).
         [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         internal static void DeserializeDesignersFromStream(ICollection activities, Stream stateStream)
         {
@@ -378,6 +387,7 @@ namespace System.Workflow.ComponentModel.Design
                 }
             }
         }
+#endif
 
         [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         internal static string GetBaseIdentifier(Activity activity)
@@ -788,6 +798,7 @@ namespace System.Workflow.ComponentModel.Design
             return TypeProvider.GetEventHandlerType(eventInfo);
         }
 
+#if !WORKFLOWFORCORE // workflowForCore: Visual Studio's per-user registry and the designers' view state (docs/LIFT.md).
         [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         internal static void AddTypeProviderAssembliesFromRegistry(TypeProvider typeProvider, IServiceProvider serviceProvider)
         {
@@ -835,7 +846,9 @@ namespace System.Workflow.ComponentModel.Design
                 referenceKey.Close();
             }
         }
+#endif
 
+#if !WORKFLOWFORCORE // workflowForCore: Visual Studio's per-user registry and the designers' view state (docs/LIFT.md).
         [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         internal static void UpdateTypeProviderAssembliesRegistry(string assemblyName)
         {
@@ -866,6 +879,7 @@ namespace System.Workflow.ComponentModel.Design
                 }
             }
         }
+#endif
 
         internal static CompositeActivity GetDeclaringActivity(Activity activity)
         {
