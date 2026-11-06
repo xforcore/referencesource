@@ -25,7 +25,9 @@ namespace System.Diagnostics {
                 throw new ConfigurationErrorsException(SR.GetString(SR.EmptyTypeName_NotAllowed));
             }
             
-            objectType = Type.GetType(className);
+            // webForCore: and, for a name without an assembly, from the assemblies that have System.dll's types on .NET
+            // (xforcore/webForCore#213).
+            objectType = TraceConfigurationTypes.GetType(className);
 
             if (objectType == null) {
                 throw new ConfigurationErrorsException(SR.GetString(SR.Could_not_find_type, className));
@@ -105,6 +107,13 @@ namespace System.Diagnostics {
                     throw new ConfigurationErrorsException(SR.GetString(SR.Could_not_create_type_instance, className), innerException);
                 else
                     throw new ConfigurationErrorsException(SR.GetString(SR.Could_not_create_type_instance, className));
+            }
+
+            // webForCore: .NET Framework's DefaultTraceListener read <assert> itself; .NET's doesn't (xforcore/webForCore#213).
+            DefaultTraceListener defaultListener = newObject as DefaultTraceListener;
+            if (defaultListener != null) {
+                defaultListener.AssertUiEnabled = DiagnosticsConfiguration.AssertUIEnabled;
+                defaultListener.LogFileName = DiagnosticsConfiguration.LogFileName;
             }
 
             return newObject;
