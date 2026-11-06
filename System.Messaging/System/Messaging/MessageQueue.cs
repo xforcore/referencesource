@@ -4004,10 +4004,9 @@ namespace System.Messaging
                 System.Transactions.Transaction tx = System.Transactions.Transaction.Current;
                 if (tx != null)
                 {
-                    System.Transactions.IDtcTransaction ntx =
-                        System.Transactions.TransactionInterop.GetDtcTransaction(tx);
-
-                    return StaleSafeSendMessage(properties, (ITransaction)ntx);
+                    // messagingForCore: no DTC (TransactionInterop.GetDtcTransaction is Windows only, and the queue
+                    // store doesn't enlist in System.Transactions): the store throws, naming the limitation.
+                    throw System.Messaging.Store.QueueStore.AutomaticTransactionNotSupported();
                 }
             }
 
@@ -4046,10 +4045,8 @@ namespace System.Messaging
                 System.Transactions.Transaction tx = System.Transactions.Transaction.Current;
                 if (tx != null)
                 {
-                    System.Transactions.IDtcTransaction ntx =
-                        System.Transactions.TransactionInterop.GetDtcTransaction(tx);
-
-                    return StaleSafeReceiveMessage(timeout, action, properties, overlapped, receiveCallback, cursorHandle, (ITransaction)ntx);
+                    // messagingForCore: no DTC (see StaleSafeSendMessage).
+                    throw System.Messaging.Store.QueueStore.AutomaticTransactionNotSupported();
                 }
             }
 
@@ -4085,10 +4082,8 @@ namespace System.Messaging
                 System.Transactions.Transaction tx = System.Transactions.Transaction.Current;
                 if (tx != null)
                 {
-                    System.Transactions.IDtcTransaction ntx =
-                        System.Transactions.TransactionInterop.GetDtcTransaction(tx);
-
-                    return StaleSafeReceiveByLookupId(lookupId, action, properties, overlapped, receiveCallback, (ITransaction)ntx);
+                    // messagingForCore: no DTC (see StaleSafeSendMessage).
+                    throw System.Messaging.Store.QueueStore.AutomaticTransactionNotSupported();
                 }
             }
 
