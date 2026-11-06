@@ -249,7 +249,11 @@ namespace System.Workflow.Runtime
 
             Dictionary<PerformanceCounterAction, List<PerformanceCounterStatement>> actionStatements = new Dictionary<PerformanceCounterAction, List<PerformanceCounterStatement>>();
 
+#if WORKFLOWFORCORE // workflowForCore: performance counters are Windows'; elsewhere there are none, as on Windows when WF's category isn't installed.
+            if (OperatingSystem.IsWindows() && PerformanceCounterCategory.Exists(c_PerformanceCounterCategoryName))
+#else
             if (PerformanceCounterCategory.Exists(c_PerformanceCounterCategoryName))
+#endif
             {
                 for (int i = 0; i < data.Length; ++i)
                 {
@@ -289,6 +293,10 @@ namespace System.Workflow.Runtime
         internal List<PerformanceCounter> CreateCounters(String name)
         {
             List<PerformanceCounter> counters = new List<PerformanceCounter>();
+#if WORKFLOWFORCORE // workflowForCore: performance counters are Windows'; elsewhere none are created (SetInstanceName).
+            if (!OperatingSystem.IsWindows())
+                return counters;
+#endif
 
             counters.Add(
                 new PerformanceCounter(
