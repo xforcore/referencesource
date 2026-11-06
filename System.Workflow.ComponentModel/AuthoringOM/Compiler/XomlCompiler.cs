@@ -487,9 +487,11 @@ namespace System.Workflow.ComponentModel.Compiler
             string createdDirectoryName = null;
             string createdTempFileName = null;
 
+#if !WORKFLOWFORCORE // workflowForCore: .NET has one application domain: the compiler runs in this one (phase 2, docs/LIFT.md).
             AppDomainSetup setup = AppDomain.CurrentDomain.SetupInformation;
             setup.LoaderOptimization = LoaderOptimization.MultiDomainHost;
             AppDomain compilerDomain = AppDomain.CreateDomain("CompilerDomain", null, setup);
+#endif
 
             bool generateInMemory = false;
             string originalOutputAssembly = parameters.OutputAssembly;
@@ -534,7 +536,11 @@ namespace System.Workflow.ComponentModel.Compiler
                     }
                 }
 
+#if WORKFLOWFORCORE
+                WorkflowCompilerInternal compiler = new WorkflowCompilerInternal();
+#else
                 WorkflowCompilerInternal compiler = (WorkflowCompilerInternal)compilerDomain.CreateInstanceAndUnwrap(Assembly.GetExecutingAssembly().FullName, typeof(WorkflowCompilerInternal).FullName);
+#endif
                 WorkflowCompilerResults results = compiler.Compile(parameters, files);
 
                 if (generateInMemory && !results.Errors.HasErrors)
@@ -555,7 +561,9 @@ namespace System.Workflow.ComponentModel.Compiler
                     parameters.OutputAssembly = originalOutputAssembly;
                 }
 
+#if !WORKFLOWFORCORE
                 AppDomain.Unload(compilerDomain);
+#endif
 
                 // The temp file must be deleted after the app domain is unloaded, or else it will
                 // be "busy", causing the delete to throw an access exception.
