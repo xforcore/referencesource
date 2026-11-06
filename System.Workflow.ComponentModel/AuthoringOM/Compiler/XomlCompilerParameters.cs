@@ -17,7 +17,9 @@ namespace System.Workflow.ComponentModel.Compiler
     using System.Text.RegularExpressions;
     using System.Runtime.Versioning;
     using System.Security;
+#if !WORKFLOWFORCORE // workflowForCore: MSBuild's ToolLocationHelper finds the reference assemblies of .NET Framework's targeting packs, for XOML compilation (phase 2, docs/LIFT.md).
     using Microsoft.Build.Utilities;
+#endif
     using System.IO;
     using System.Runtime.InteropServices;
 
@@ -261,6 +263,9 @@ namespace System.Workflow.ComponentModel.Compiler
 
                 public ReferenceManager()
                 {
+#if WORKFLOWFORCORE // workflowForCore: no .NET Framework targeting packs (ToolLocationHelper, above).
+                    this.frameworkReferenceDirectories = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase);
+#else
                     this.frameworkReferenceAssemblyRoot = ToolLocationHelper.GetProgramFilesReferenceAssemblyRoot();
                     this.frameworkReferenceDirectories = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase);
 
@@ -278,6 +283,7 @@ namespace System.Workflow.ComponentModel.Compiler
                             }
                         }
                     }
+#endif
                 }
 
                 public string FrameworkReferenceAssemblyRoot
