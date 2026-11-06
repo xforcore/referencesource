@@ -132,6 +132,7 @@ namespace System.Workflow.Runtime
             Activity.ActivityResolve += OnActivityDefinitionResolve;
             Activity.WorkflowChangeActionsResolve += OnWorkflowChangeActionsResolve;
             
+#if !WORKFLOWFORCORE // workflowForCore: .NET Framework's usage telemetry to Microsoft isn't sent (docs/LIFT.md).
             try
             {
                 using (TelemetryEventSource eventSource = new TelemetryEventSource())
@@ -142,6 +143,7 @@ namespace System.Workflow.Runtime
             catch
             {
             }
+#endif
         }
 
         public WorkflowRuntime()
