@@ -117,7 +117,11 @@ namespace System.Workflow.Activities
                 String securityIdentifier = null;
                 if (eventArgs.Identity == null)
                 {
+#if WORKFLOWFORCORE // workflowForCore: .NET's Thread.CurrentPrincipal is null unless the application sets one; .NET Framework's is an unauthenticated GenericPrincipal, whose identity's name is "".
+                    IIdentity identity = System.Threading.Thread.CurrentPrincipal != null ? System.Threading.Thread.CurrentPrincipal.Identity : new GenericIdentity(string.Empty);
+#else
                     IIdentity identity = System.Threading.Thread.CurrentPrincipal.Identity;
+#endif
                     WindowsIdentity windowsIdentity = identity as WindowsIdentity;
                     if (windowsIdentity != null && windowsIdentity.User != null)
                         securityIdentifier = windowsIdentity.User.Translate(typeof(NTAccount)).ToString();
